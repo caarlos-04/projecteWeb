@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
+from django.utils.timezone import now
 
 # Create your views here.
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html', {"timestamp": now().timestamp()})
 
 def logout_view(request):
     auth_logout(request)
     return redirect('home')
+
