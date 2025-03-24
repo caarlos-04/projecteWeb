@@ -13,49 +13,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name='Artist',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('bio', models.TextField(blank=True)),
-                ('birth_date', models.DateField(blank=True, null=True)),
-                ('website', models.URLField(blank=True)),
-                ('active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
             ],
-        ),
-        migrations.CreateModel(
-            name='Book',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('isbn', models.CharField(max_length=13, unique=True)),
-                ('category', models.CharField(choices=[('FIC', 'Fiction'), ('NON', 'Non-Fiction'), ('EDU', 'Educational'), ('CHI', 'Children')], max_length=3)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('publication_date', models.DateField()),
-                ('page_count', models.PositiveIntegerField()),
-                ('in_stock', models.BooleanField(default=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='books', to='web.author')),
-                ('co_authors', models.ManyToManyField(blank=True, related_name='co_authored_books', to='web.author')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Review',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reviewer_name', models.CharField(max_length=100)),
-                ('rating', models.PositiveSmallIntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)])),
-                ('comment', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('likes', models.PositiveIntegerField(default=0)),
-                ('is_verified', models.BooleanField(default=False)),
-                ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='web.book')),
-            ],
-            options={
-                'ordering': ['-created_at'],
-                'unique_together': {('book', 'reviewer_name')},
-            },
         ),
     ]
