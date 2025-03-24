@@ -3,7 +3,11 @@ name = "projecteweb"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "caarlos-04",email = "cmazarico@gmail.com"}
+    {name = "caarlos-04",email = "cmazarico@gmail.com"},
+    {name = "oriolvines", email = "oriolvibo04gmail.com"},
+    {name = "David0-Eng", email = "davidmf12004@gmail.com"},
+    {name = "blaigene", email = "genemorablai@gmail.com"},
+    {name = "polma7", email = "polmasip7@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.10"
