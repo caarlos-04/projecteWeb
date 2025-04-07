@@ -22,5 +22,8 @@
         {% endif %}
         <button type="submit">Login</button>
     </form>
+    <div class="auth-prompt">
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+    </div>
 </div>
 {% endblock %} 

@@ -28,6 +28,8 @@ nav {
 }
 
 .logo {
+    text-decoration: none;
+    cursor: pointer;
     font-size: 1.5rem;
     font-weight: bold;
     color: #1DB954; /* Verde Spotify */
@@ -142,6 +144,9 @@ footer {
 
 .user-actions, .guest-actions {
     display: flex;
+    flex-direction: column;
+    max-width: 100px;
+    margin: 0 auto;
     gap: 1rem;
     justify-content: center;
 }
@@ -195,4 +200,16 @@ footer {
 .tooltip-wrapper:focus-within .tooltip {
     opacity: 1;
     pointer-events: auto;
+}
+
+.auth-prompt {
+    text-align: center;
+    margin: 20px auto 0;
+    width: 100%;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
 }
