@@ -159,3 +159,40 @@ footer {
 .button:hover {
     background-color: #1aa34a;
 }
+
+/* Display helptext if necessary */
+.tooltip-wrapper {
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    top: -0.5rem;
+    left: 105%;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent #333 transparent transparent;
+}
+
+.tooltip-wrapper:focus-within .tooltip {
+    opacity: 1;
+    pointer-events: auto;
+}

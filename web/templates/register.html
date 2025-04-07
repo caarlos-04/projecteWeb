@@ -1,15 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-</head>
-<body>
-    <h1>Create account</h1>
-    <form method="post">
+{% extends 'base.html' %}
+{% block title %}Register - SpotyStats{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h1>Create Account</h1>
+    <form method="post" class="login-form">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        {% for field in form %}
+            <div class="form-group tooltip-wrapper">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <div class="tooltip">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="error-message">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
         <button type="submit">Register</button>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}

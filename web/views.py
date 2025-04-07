@@ -17,9 +17,14 @@ def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            print("✅ Usuario registrado:", user)
             return redirect("login")
+        else:
+            print("❌ Formulario inválido")
+            print(form.errors)
     else:
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
+
 
