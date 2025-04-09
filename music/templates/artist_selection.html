@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Selecciona tu Artista{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h1>Selecciona un Artista</h1>
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Siguiente</button>
+    </form>
+    <h3>Lista de Artistas disponibles:</h3>
+    <ul>
+        {% for artist in artists %}
+            <li>{{ artist.name }}</li>
+        {% empty %}
+            <li>No hay artistas agregados.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
