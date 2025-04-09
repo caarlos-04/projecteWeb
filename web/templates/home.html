@@ -7,6 +7,27 @@
     {% if user.is_authenticated %}
         <h1>Welcome, {{ user.username }}!</h1>
         <p>What would you like to listen to today?</p>
+
+        {% if user_selections %}
+            <h2>Your Selected Artists</h2>
+            <ul>
+                {% for selection in user_selections %}
+                    <li>
+                        <strong>{{ selection.artist.name }}</strong>
+                        <ul>
+                            {% for track in selection.artist.tracks.all %}
+                                <li>{{ track.title }}</li>
+                            {% empty %}
+                                <li>No tracks available</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You haven't selected any artists yet.</p>
+        {% endif %}
+
     {% else %}
         <h1>Welcome to SpotyStats!</h1>
         <p>Please log in to access our content.</p>
@@ -16,4 +37,4 @@
         </div>
     {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}

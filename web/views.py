@@ -4,10 +4,16 @@ from django.shortcuts import redirect
 from django.utils.timezone import now
 from .forms import RegisterForm
 
+from .models import UserArtistSelection
+
 # Create your views here.
 
 def home(request):
-    return render(request, 'home.html', {"timestamp": now().timestamp()})
+    context = {"timestamp": now().timestamp()}
+    if request.user.is_authenticated:
+        user_selections = UserArtistSelection.objects.filter(user=request.user).select_related('artist')
+        context["user_selections"] = user_selections
+    return render(request, 'home.html', context)
 
 def logout_view(request):
     auth_logout(request)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Artist(models.Model):
     name = models.CharField(max_length=100)
@@ -30,3 +31,13 @@ class ListeningHistory(models.Model):
 
 # For more info on how to use Django model fields: 
 # https://docs.djangoproject.com/en/stable/ref/models/fields/
+
+class UserArtistSelection(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artist_selections')
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='selected_by')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.artist.name}"
+
+
