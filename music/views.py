@@ -24,3 +24,7 @@ def song_selection_view(request, artist_id):
 
     context = {'artist': artist}
     return render(request, 'song_selection.html', context)
+
+@login_required
+def base_song_selection_view(request):
+    return render(request, 'song_selection.html')
