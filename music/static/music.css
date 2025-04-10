@@ -1,0 +1,20 @@
+
+.info-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #181818;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+.info-container h1 {
+    color: #1DB954;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.info-container p {
+    color: #555;
+    font-style: italic;
+}

@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class Artist(models.Model):
     name = models.CharField(max_length=100)
@@ -9,7 +8,6 @@ class Artist(models.Model):
 class Album(models.Model):
     title = models.CharField(max_length=100)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='albums')
-    release_date = models.DateField(null=True, blank=True)
     def __str__(self):
         return self.title
 
@@ -29,15 +27,13 @@ class ListeningHistory(models.Model):
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     played_at = models.DateTimeField()
 
-# For more info on how to use Django model fields: 
-# https://docs.djangoproject.com/en/stable/ref/models/fields/
-
-class UserArtistSelection(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artist_selections')
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='selected_by')
-    added_at = models.DateTimeField(auto_now_add=True)
-
+class Playlist(models.Model):
+    title = models.CharField(max_length=100)
+    tracks = models.ManyToManyField('Track', related_name='playlists')
     def __str__(self):
-        return f"{self.user.username} - {self.artist.name}"
+        return self.title
 
+
+# For more info on how to use Django model fields:
+# https://docs.djangoproject.com/en/stable/ref/models/fields/
 

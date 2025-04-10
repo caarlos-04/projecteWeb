@@ -19,5 +19,6 @@ Including another URLconf
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('web.urls')),  # this loads our 'web' app urls
-    path('music/', include('music.urls'))
+    path('music/', include('music.urls')),
+    path('info/', include('info.urls'))
 ]

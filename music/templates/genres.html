@@ -2,9 +2,12 @@
 {% block title %}Discover your favourite genres{% endblock %}
 
 {% block content %}
-<div class="login-container">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
+<div class="info-container">
     <h1>{{ user.username }}'s most listened genres</h1>
     <p>Working on it...</p>
     <img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
 </div>
+
 {% endblock %}

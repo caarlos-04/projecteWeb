@@ -1,18 +1,15 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
 from django.utils.timezone import now
 from .forms import RegisterForm
 
-from .models import UserArtistSelection
 
 # Create your views here.
 
 def home(request):
     context = {"timestamp": now().timestamp()}
-    if request.user.is_authenticated:
-        user_selections = UserArtistSelection.objects.filter(user=request.user).select_related('artist')
-        context["user_selections"] = user_selections
     return render(request, 'home.html', context)
 
 def logout_view(request):
@@ -31,5 +28,13 @@ def register_view(request):
 
 def about_us_view(request):
     return render(request, "about_us.html")
+
+@login_required
+def base_music_view(request):
+    return render(request, "music.html")
+
+@login_required
+def base_info_view(request):
+    return render(request, "info.html")
 
 

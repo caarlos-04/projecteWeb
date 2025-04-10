@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'behave_django',
     'web',
-    'music'
+    'music',
+    'info'
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,11 @@ ROOT_URLCONF = 'ProjecteWeb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'web' /'templates']
+        'DIRS': [
+            BASE_DIR / 'web' / 'templates',
+            BASE_DIR / 'info' / 'templates',
+            BASE_DIR / 'music' / 'templates',
+        ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -122,6 +127,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "web/static",
+    BASE_DIR / "music/static",
 ]
 
 # Default primary key field type
