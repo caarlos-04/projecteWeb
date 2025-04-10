@@ -1,21 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}Selecciona tu Artista{% endblock %}
+{% block title %}Discover your most listened Artists{% endblock %}
 
 {% block content %}
 <div class="login-container">
-    <h1>Selecciona un Artista</h1>
-    <form method="post" class="login-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Siguiente</button>
-    </form>
-    <h3>Lista de Artistas disponibles:</h3>
-    <ul>
-        {% for artist in artists %}
-            <li>{{ artist.name }}</li>
-        {% empty %}
-            <li>No hay artistas agregados.</li>
-        {% endfor %}
-    </ul>
+    <h1>{{ user.username }}'s TOP Artists</h1>
+    <p>Working on it...</p>
+<img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
 </div>
 {% endblock %}

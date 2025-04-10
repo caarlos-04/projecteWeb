@@ -10,7 +10,7 @@
 <body>
     <header>
         <nav>
-            <div class="logo">SpotyStats</div>
+            <a href="{% url 'about_us' %}" class="logo">SpotyStats</a>
             <div class="nav-links">
                 <a href="{% url 'home' %}">Home</a>
                 {% if user.is_authenticated %}
