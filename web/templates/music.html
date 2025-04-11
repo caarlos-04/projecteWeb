@@ -1,14 +1,39 @@
 {% extends 'base.html' %}
 {% block title %}What would you want to know about you{% endblock %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style.css' %}?v={{ timestamp }}">
-{% block content %}
 
+{% block content %}
 <div class="info-container">
-            <a href="/music/artist-selection/" class="menu-button">My Artists</a>
-            <a href="/music/song-selection/" class="menu-button">Top Tracks</a>
-            <a href="/music/genres/" class="menu-button">Top Genres</a>
-            <a href="/music/discover/" class="menu-button">Discover</a>
+    <a href="/music/artist-selection/" class="menu-button">My Artists</a>
+    <a href="/music/song-selection/" class="menu-button">Top Tracks</a>
+    <a href="/music/genres/" class="menu-button">Top Genres</a>
+    <a href="/music/discover/" class="menu-button">Discover</a>
 </div>
 
+<style>
+.info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.menu-button {
+    display: block;
+    padding: 12px 20px;
+    background-color: #1DB954;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.menu-button:hover {
+    background-color: #17a444;
+}
+</style>
 {% endblock %}
