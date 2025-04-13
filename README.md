@@ -32,7 +32,7 @@ This project is still **in development** and is part of a **university coursewor
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/spotystats.git
+   git clone https://github.com/caarlos-04/spotystats.git
    cd spotystats
    ```
 
