@@ -3,6 +3,6 @@ from . import views
 
 urlpatterns = [
     path('artist-info', views.info_artist_view, name='artist_info'),
-
+    path('redirect',views.redirect_info, name='redirect_info' ),
 
 ]
