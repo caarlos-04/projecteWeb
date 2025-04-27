@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from web.models import Artist, Track
 from .forms import ArtistSelectionForm
 from .templates import *
+from .spotify_api import spotify_request, get_access_token
 
 @login_required
 def artist_selection_view(request):
@@ -37,3 +38,7 @@ def discover_view(request):
 @login_required
 def top_genres_view(request):
     return render(request, 'genres.html')
+
+@login_required
+def spotify_login(request):
+    return render(request, 'spotify_login.html')
