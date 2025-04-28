@@ -4,11 +4,12 @@ from web.models import Artist, Track
 from .forms import ArtistSelectionForm
 import os
 import urllib.parse
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import requests
 from django.urls import reverse
 
-load_dotenv()
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 @login_required
 def artist_selection_view(request):
@@ -47,9 +48,8 @@ def top_genres_view(request):
 @login_required
 def spotify_login(request):
     client_id = os.getenv('SPOTIFY_CLIENT_ID')
-    redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
-    scope = 'user-top-read user-read-private'  # Ajusta los permisos que necesites
-
+    redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+    scope = 'user-top-read user-read-private'
     params = {
         'client_id': client_id,
         'response_type': 'code',
