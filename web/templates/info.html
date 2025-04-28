@@ -1,37 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}Información{% endblock %}
+{% block title %}Information{% endblock %}
 
 {% block content %}
-<div class="info-container">
-    <a href="/info/artist-info" class="menu-button">Artist Information</a>
-    <a>Working on the next options...</a>
+<div class="search-section">
+  <h2>Search for your favorite tracks, albums, artists...</h2>
+  <div class="search-container">
+    <input type="text" id="input-search" placeholder="Search..." />
+    <button id="search-button">Search</button>
+  </div>
 </div>
 
+<script>
+const accessToken = "YOUR_SPOTIFY_ACCESS_TOKEN";
+
+document.getElementById("search-button").addEventListener("click", async function() {
+  const query = document.getElementById("input-search").value;
+  if (!query) return;
+
+  const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track,artist,album&limit=5`;
+
+  const response = await fetch(url, {
+    headers: {
+      "Authorization": `Bearer ${accessToken}`
+    }
+  });
+
+  const data = await response.json();
+  console.log(data);
+});
+</script>
+
+
 <style>
-.info-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 2rem;
+
+.search-section {
+  text-align: center;
+  margin-top: 100px;
+  color: white;
 }
 
-.menu-button {
-    display: block;
-    padding: 12px 20px;
-    background-color: #1DB954;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    max-width: 300px;
+.search-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-.menu-button:hover {
-    background-color: #17a444;
+#input-search {
+  padding: 15px;
+  width: 400px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #121212;
+  color: white;
 }
+
+button {
+  background-color: #1DB954;
+  color: white;
+  padding: 15px 25px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1ed760;
+}
+
 </style>
 {% endblock %}
