@@ -47,7 +47,7 @@ def top_genres_view(request):
 
 @login_required
 def spotify_login(request):
-    client_id = os.getenv('SPOTIFY_CLIENT_ID')
+    client_id = os.getenv('SPOTIPY_CLIENT_ID')
     redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
     scope = 'user-top-read user-read-private'
     params = {
@@ -65,9 +65,9 @@ def spotify_callback(request):
     code = request.GET.get('code')
     if not code:
         return redirect('home')
-    client_id = os.getenv('SPOTIFY_CLIENT_ID')
-    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
-    redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
+    client_id = os.getenv('SPOTIPY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+    redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
 
     payload = {
         'grant_type': 'authorization_code',
