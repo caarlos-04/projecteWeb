@@ -67,3 +67,25 @@ def spotify_request(request, endpoint, params=None):
         return response.json()
     else:
         return None
+
+def refresh_access_token(session):
+    refresh_token = session.get('refresh_token')
+    client_id = os.getenv('SPOTIPY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+
+    payload = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'client_id': client_id,
+        'client_secret': client_secret,
+    }
+
+    response = requests.post('https://accounts.spotify.com/api/token', data=payload)
+    if response.status_code == 200:
+        tokens = response.json()
+        session['access_token'] = tokens['access_token']
+        # Spotify puede o no devolver un nuevo refresh_token
+        if 'refresh_token' in tokens:
+            session['refresh_token'] = tokens['refresh_token']
+        return True
+    return False

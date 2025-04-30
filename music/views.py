@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from web.models import Artist, Track
 from .forms import ArtistSelectionForm
 import os
@@ -7,12 +8,15 @@ import urllib.parse
 from dotenv import load_dotenv, find_dotenv
 import requests
 from django.urls import reverse
-
+from music.spotify_api import refresh_access_token
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 @login_required
 def artist_selection_view(request):
+    if 'access_token' not in request.session:
+        request.session['next'] = request.path
+        return redirect('spotify_login')
     form = ArtistSelectionForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
 
@@ -101,3 +105,95 @@ def redirect_music(request):
         # Guardamos a dónde quería ir
         request.session['next'] = reverse('music')
         return redirect('/music/spotify-login')
+
+@login_required
+def get_top_artists(request):
+    access_token = request.session.get('access_token')
+    time_range = request.GET.get('time_range', 'medium_term')
+
+    if not access_token:
+        return JsonResponse({'error': 'No access token'}, status=401)
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    url = 'https://api.spotify.com/v1/me/top/artists'
+    params = {
+        'limit': 10,
+        'time_range': time_range,
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 401:
+        # Token expirado, intenta refrescar
+        if refresh_access_token(request.session):
+            # Vuelve a intentar con el nuevo token
+            access_token = request.session.get('access_token')
+            headers['Authorization'] = f'Bearer {access_token}'
+            response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        return JsonResponse({
+            'error': 'Spotify API error',
+            'status': response.status_code,
+            'response': response.json()
+        }, status=response.status_code)
+
+    data = response.json()
+    artists_data = [
+        {
+            'name': artist['name'],
+            'image': artist['images'][0]['url'] if artist['images'] else ''
+        }
+        for artist in data.get('items', [])
+    ]
+
+    return JsonResponse({'artists': artists_data})
+
+@login_required
+def get_top_songs(request):
+    access_token = request.session.get('access_token')
+    time_range = request.GET.get('time_range', 'medium_term')
+
+    if not access_token:
+        return JsonResponse({'error': 'No access token'}, status=401)
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    url = 'https://api.spotify.com/v1/me/top/tracks'
+    params = {
+        'limit': 10,
+        'time_range': time_range,
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 401:
+        # Token expirado, intenta refrescar
+        if refresh_access_token(request.session):
+            # Vuelve a intentar con el nuevo token
+            access_token = request.session.get('access_token')
+            headers['Authorization'] = f'Bearer {access_token}'
+            response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        return JsonResponse({
+            'error': 'Spotify API error',
+            'status': response.status_code,
+            'response': response.json()
+        }, status=response.status_code)
+
+    data = response.json()
+    tracks_data = [
+        {
+            'name': track['name'],
+            'image': track['album']['images'][0]['url'] if track['album']['images'] else ''
+        }
+        for track in data.get('items', [])
+    ]
+
+    return JsonResponse({'tracks': tracks_data})
