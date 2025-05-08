@@ -197,3 +197,11 @@ def get_top_songs(request):
     ]
 
     return JsonResponse({'tracks': tracks_data})
+
+def spotify_token_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get('access_token'):
+            request.session['next'] = request.path  # guarda la ruta a la que iba
+            return redirect(reverse('spotify_login'))
+        return view_func(request, *args, **kwargs)
+    return wrapper

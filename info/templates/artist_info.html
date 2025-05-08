@@ -1,12 +1,46 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Discover artists{% endblock %}
-
 {% block content %}
-<link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
 <div class="info-container">
-    <h1>What artist are you looking for?</h1>
-    <p>Working on it...</p>
-    <img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
+    <h1 class="info-title">Search an Artist</h1>
+
+    <form method="get" action="{% url 'artist_search' %} class="search-form">
+    <input type="text" name="artist" placeholder="Introduce el nombre del artista" required>
+    <button type="submit">Buscar</button>
+</form>
+
+{% if artist %}
+<h2>Álbumes de {{ artist.name }}</h2>
+<img src="{{ artist.image }}" width="200">
+
+{% for album in albums %}
+    <div class="album">
+        <h3>{{ album.title }}</h3>
+        <img src="{{ album.image }}" width="200">
+        <ul>
+        {% for track in album.tracks %}
+            <li>
+                {{ track.title }}
+                <form method="post" action="{% url 'save_track_to_playlist' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="track_title" value="{{ track.title }}">
+                    <input type="hidden" name="album_title" value="{{ album.title }}">
+                    <input type="hidden" name="artist_name" value="{{ artist.name }}">
+
+                    <select name="playlist_id">
+                        <option value="">Crear nueva</option>
+                        {% for pl in playlists %}
+                            <option value="{{ pl.id }}">{{ pl.title }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="new_playlist_title" placeholder="Nombre nueva playlist">
+                    <button type="submit">Guardar</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endfor %}
+{% endif %}
 </div>
+
 {% endblock %}
