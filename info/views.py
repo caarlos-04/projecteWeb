@@ -7,9 +7,6 @@ from music.views import spotify_token_required
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-@login_required
-def info_artist_view(request):
-    return render(request, 'artist_info.html')
 
 @login_required
 def redirect_info(request):
@@ -34,7 +31,7 @@ def artist_info_view(request):
 
         # Buscar artista
         search_url = 'https://api.spotify.com/v1/search'
-        params = {'q': artist_name, 'type': 'artist', 'limit': 1}
+        params = {'q': artist_name, 'type': 'artist', 'limit': 15}
         search_resp = requests.get(search_url, headers=headers, params=params)
 
         if search_resp.status_code == 200:
@@ -93,17 +90,18 @@ def save_track_to_playlist(request):
         # Obtener o crear artist, album, track
         artist, _ = Artist.objects.get_or_create(name=artist_name)
         album, _ = Album.objects.get_or_create(title=album_title, artist=artist)
-        track, _ = Track.objects.get_or_create(title=track_title, album=album)
+        track, _ = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
 
         # Obtener o crear playlist
         if playlist_id:
             playlist = Playlist.objects.get(id=playlist_id)
         else:
-            playlist = Playlist.objects.create(title=new_playlist_title, user=request.user)
+            playlist, _ = Playlist.objects.get_or_create(title=new_playlist_title, user=request.user)
 
         playlist.tracks.add(track)
 
-    return redirect('artist_info')
+    next_url = request.POST.get('next', reverse('artist_search'))
+    return redirect(next_url)
 
 @login_required
 def user_playlists_view(request):
@@ -122,3 +120,49 @@ def remove_track_from_playlist(request, playlist_id, track_id):
     track = get_object_or_404(Track, id=track_id)
     playlist.tracks.remove(track)
     return redirect('user_playlists')
+
+@login_required
+@spotify_token_required
+def top_songs_artist(request):
+    artist_name = request.GET.get('artist')
+    artist_data = {}
+    songs_data = []
+
+    if artist_name:
+        token = request.session.get('access_token')
+        headers = {'Authorization': f'Bearer {token}'}
+
+        # Buscar artista
+        search_url = 'https://api.spotify.com/v1/search'
+        params = {'q': artist_name, 'type': 'artist', 'limit': 15}
+        search_resp = requests.get(search_url, headers=headers, params=params)
+
+        if search_resp.status_code == 200:
+            artists = search_resp.json().get('artists', {}).get('items', [])
+            if artists:
+                spotify_artist = artists[0]
+                artist_data = {
+                    'name': spotify_artist['name'],
+                    'image': spotify_artist['images'][0]['url'] if spotify_artist['images'] else '',
+                    'id': spotify_artist['id'],
+                }
+
+                # Obtener canciones populares
+                songs_url = f"https://api.spotify.com/v1/artists/{spotify_artist['id']}/top-tracks"
+                songs_resp = requests.get(songs_url, headers=headers, params={'market': 'ES'})
+
+                if songs_resp.status_code == 200:
+                    for song in songs_resp.json().get('tracks', []):
+                        song_data = {
+                            'id': song['id'],
+                            'title': song['name'],
+                        }
+                        songs_data.append(song_data)
+
+    context = {
+        'artist': artist_data,
+        'songs': songs_data,
+        'playlists': Playlist.objects.filter(user=request.user)
+    }
+
+    return render(request, 'artist_top_songs.html', context)
