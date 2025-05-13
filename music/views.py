@@ -127,9 +127,9 @@ def get_top_artists(request):
     response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 401:
-        # Token expirado, intenta refrescar
+
         if refresh_access_token(request.session):
-            # Vuelve a intentar con el nuevo token
+
             access_token = request.session.get('access_token')
             headers['Authorization'] = f'Bearer {access_token}'
             response = requests.get(url, headers=headers, params=params)
@@ -173,9 +173,9 @@ def get_top_songs(request):
     response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 401:
-        # Token expirado, intenta refrescar
+
         if refresh_access_token(request.session):
-            # Vuelve a intentar con el nuevo token
+
             access_token = request.session.get('access_token')
             headers['Authorization'] = f'Bearer {access_token}'
             response = requests.get(url, headers=headers, params=params)
@@ -205,7 +205,7 @@ def spotify_token_required(view_func):
 
         if not access_token:
             if refresh_token:
-                # Intenta refrescar el token con el refresh_token
+
                 response = requests.post('https://accounts.spotify.com/api/token', data={
                     'grant_type': 'refresh_token',
                     'refresh_token': refresh_token,
@@ -217,11 +217,11 @@ def spotify_token_required(view_func):
                     data = response.json()
                     request.session['access_token'] = data['access_token']
                 else:
-                    # Falló el refresh, redirige a login
+
                     request.session['next'] = request.path
                     return redirect(reverse('spotify_login'))
             else:
-                # No refresh_token, redirige a login
+
                 request.session['next'] = request.path
                 return redirect(reverse('spotify_login'))
 

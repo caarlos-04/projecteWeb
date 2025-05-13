@@ -29,7 +29,6 @@ def artist_info_view(request):
         token = request.session.get('access_token')
         headers = {'Authorization': f'Bearer {token}'}
 
-        # Buscar artista
         search_url = 'https://api.spotify.com/v1/search'
         params = {'q': artist_name, 'type': 'artist', 'limit': 15}
         search_resp = requests.get(search_url, headers=headers, params=params)
@@ -44,7 +43,6 @@ def artist_info_view(request):
                     'id': spotify_artist['id'],
                 }
 
-                # Buscar álbumes
                 albums_url = f"https://api.spotify.com/v1/artists/{spotify_artist['id']}/albums"
                 albums_resp = requests.get(albums_url, headers=headers, params={'include_groups': 'album', 'limit': 10})
 
@@ -57,7 +55,6 @@ def artist_info_view(request):
                             'tracks': []
                         }
 
-                        # Buscar tracks del álbum
                         tracks_url = f"https://api.spotify.com/v1/albums/{album['id']}/tracks"
                         tracks_resp = requests.get(tracks_url, headers=headers)
                         if tracks_resp.status_code == 200:
@@ -87,12 +84,10 @@ def save_track_to_playlist(request):
         playlist_id = request.POST.get('playlist_id')
         new_playlist_title = request.POST.get('new_playlist_title')
 
-        # Obtener o crear artist, album, track
         artist, _ = Artist.objects.get_or_create(name=artist_name)
         album, _ = Album.objects.get_or_create(title=album_title, artist=artist)
         track, _ = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
 
-        # Obtener o crear playlist
         if playlist_id:
             playlist = Playlist.objects.get(id=playlist_id)
         else:
@@ -132,7 +127,6 @@ def top_songs_artist(request):
         token = request.session.get('access_token')
         headers = {'Authorization': f'Bearer {token}'}
 
-        # Buscar artista
         search_url = 'https://api.spotify.com/v1/search'
         params = {'q': artist_name, 'type': 'artist', 'limit': 15}
         search_resp = requests.get(search_url, headers=headers, params=params)
@@ -147,7 +141,6 @@ def top_songs_artist(request):
                     'id': spotify_artist['id'],
                 }
 
-                # Obtener canciones populares
                 songs_url = f"https://api.spotify.com/v1/artists/{spotify_artist['id']}/top-tracks"
                 songs_resp = requests.get(songs_url, headers=headers, params={'market': 'ES'})
 
@@ -156,6 +149,7 @@ def top_songs_artist(request):
                         song_data = {
                             'id': song['id'],
                             'title': song['name'],
+                            'album': song['album']['name'],
                         }
                         songs_data.append(song_data)
 

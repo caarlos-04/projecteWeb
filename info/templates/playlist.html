@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="playlist-container">
-    <h1>Mis Playlists</h1>
+    <h1>My Playlists</h1>
 
     {% if playlists %}
         {% for playlist in playlists %}
@@ -11,7 +11,7 @@
                 <!-- Botón para eliminar la playlist -->
                 <form method="post" action="{% url 'delete_playlist' playlist.id %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" onclick="return confirm('¿Eliminar esta playlist?')">🗑️ Eliminar Playlist</button>
+                    <button type="submit" onclick="return confirm('Delete this playlist?')">🗑️ Delete Playlist</button>
                 </form>
 
                 {% if playlist.tracks.all %}
@@ -25,18 +25,18 @@
                                 <!-- Botón para eliminar una canción de la playlist -->
                                 <form method="post" action="{% url 'remove_track_from_playlist' playlist.id track.id %}" style="display:inline;">
                                     {% csrf_token %}
-                                    <button type="submit">❌ Quitar Canción</button>
+                                    <button type="submit">❌ Delete song</button>
                                 </form>
                             </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p>No hay canciones en esta playlist.</p>
+                    <p>There are no songs in this playlist.</p>
                 {% endif %}
             </div>
         {% endfor %}
     {% else %}
-        <p>No tienes playlists aún.</p>
+        <p>No playlists yet.</p>
     {% endif %}
 </div>
 {% endblock %}
