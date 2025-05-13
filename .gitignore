@@ -2,5 +2,3 @@
 projecteWeb/*
 #Environment variables
 .env
-#Data base
-db.sqlite3
