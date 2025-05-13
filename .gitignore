@@ -2,3 +2,5 @@
 projecteWeb/*
 #Environment variables
 .env
+#Environment
+.idea/*
