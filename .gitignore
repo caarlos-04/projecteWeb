@@ -1,2 +1,6 @@
+#Virtual environment
+projecteWeb/*
+#Environment variables
 .env
-db.sqlite3
+#Environment
+.idea/*

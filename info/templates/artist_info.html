@@ -1,12 +1,57 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Discover artists{% endblock %}
-
 {% block content %}
-<link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
 <div class="info-container">
-    <h1>What artist are you looking for?</h1>
-    <p>Working on it...</p>
-    <img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
+    <h1 class="info-title">Search an Artist</h1>
+
+    <form method="get" action="{% url 'artist_search' %}" class="search-form">
+        <input type="text" name="artist" placeholder="Introduce el nombre del artista" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if artist %}
+    <h2>Álbumes de {{ artist.name }}</h2>
+    <img src="{{ artist.image }}" width="200">
+
+    {% for album in albums %}
+    <div class="album">
+        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="toggleTracks('{{ album.id }}')">
+            <img src="{{ album.image }}" width="150">
+            <h3>{{ album.title }}</h3>
+            <span style="font-size: 24px;">&#x25BC;</span> <!-- Flecha -->
+        </div>
+
+        <ul id="tracks-{{ album.id }}" class="track-list" style="display: none; margin-top: 10px;">
+            {% for track in album.tracks %}
+            <li style="display: flex; align-items: center; gap: 10px;">
+                {{ track.title }}
+                <form method="post" action="{% url 'save_track_to_playlist' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="track_title" value="{{ track.title }}">
+                    <input type="hidden" name="album_title" value="{{ album.title }}">
+                    <input type="hidden" name="artist_name" value="{{ artist.name }}">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                    <select name="playlist_id">
+                        <option value="">Nueva playlist</option>
+                        {% for pl in playlists %}
+                        <option value="{{ pl.id }}">{{ pl.title }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="new_playlist_title" placeholder="Nombre nueva playlist">
+                    <button type="submit">+</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+    {% endif %}
 </div>
+
+<script>
+function toggleTracks(id) {
+    const list = document.getElementById(`tracks-${id}`);
+    list.style.display = list.style.display === 'none' ? 'block' : 'none';
+}
+</script>
 {% endblock %}

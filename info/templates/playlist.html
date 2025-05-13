@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="playlist-container">
+    <h1>Mis Playlists</h1>
+
+    {% if playlists %}
+        {% for playlist in playlists %}
+            <div class="playlist">
+                <h2>{{ playlist.title }}</h2>
+
+                <!-- Botón para eliminar la playlist -->
+                <form method="post" action="{% url 'delete_playlist' playlist.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('¿Eliminar esta playlist?')">🗑️ Eliminar Playlist</button>
+                </form>
+
+                {% if playlist.tracks.all %}
+                    <ul>
+                        {% for track in playlist.tracks.all %}
+                            <li>
+                                <strong>{{ track.title }}</strong><br>
+                                <em>Álbum:</em> {{ track.album.title }}<br>
+                                <em>Artista:</em> {{ track.album.artist.name }}
+
+                                <!-- Botón para eliminar una canción de la playlist -->
+                                <form method="post" action="{% url 'remove_track_from_playlist' playlist.id track.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit">❌ Quitar Canción</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay canciones en esta playlist.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No tienes playlists aún.</p>
+    {% endif %}
+</div>
+{% endblock %}
