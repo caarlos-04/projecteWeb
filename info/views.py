@@ -1,15 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from music.spotify_api import refresh_access_token
 from web.models import Artist, Album, Track, Playlist
 import requests
-from music.views import spotify_token_required
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 @login_required
-@spotify_token_required
 def redirect_info(request):
     access_token = request.session.get('access_token')
 
@@ -19,20 +18,31 @@ def redirect_info(request):
         request.session['next'] = reverse('info')
         return redirect('/music/spotify-login')
 
+def _make_spotify_request(url, request, params=None):
+    """
+    Helper to make authenticated Spotify requests and refresh token on 401
+    """
+    token = request.session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 401:
+        if refresh_access_token(request.session):
+            token = request.session.get('access_token')
+            headers['Authorization'] = f'Bearer {token}'
+            response = requests.get(url, headers=headers, params=params)
+
+    return response
+
 @login_required
-@spotify_token_required
 def artist_info_view(request):
     artist_name = request.GET.get('artist')
     artist_data = {}
     albums_data = []
 
     if artist_name:
-        token = request.session.get('access_token')
-        headers = {'Authorization': f'Bearer {token}'}
-
-        search_url = 'https://api.spotify.com/v1/search'
         params = {'q': artist_name, 'type': 'artist', 'limit': 15}
-        search_resp = requests.get(search_url, headers=headers, params=params)
+        search_resp = _make_spotify_request('https://api.spotify.com/v1/search', request, params=params)
 
         if search_resp.status_code == 200:
             artists = search_resp.json().get('artists', {}).get('items', [])
@@ -45,7 +55,7 @@ def artist_info_view(request):
                 }
 
                 albums_url = f"https://api.spotify.com/v1/artists/{spotify_artist['id']}/albums"
-                albums_resp = requests.get(albums_url, headers=headers, params={'include_groups': 'album', 'limit': 10})
+                albums_resp = _make_spotify_request(albums_url, request, params={'include_groups': 'album', 'limit': 10})
 
                 if albums_resp.status_code == 200:
                     for album in albums_resp.json().get('items', []):
@@ -57,7 +67,8 @@ def artist_info_view(request):
                         }
 
                         tracks_url = f"https://api.spotify.com/v1/albums/{album['id']}/tracks"
-                        tracks_resp = requests.get(tracks_url, headers=headers)
+                        tracks_resp = _make_spotify_request(tracks_url, request)
+
                         if tracks_resp.status_code == 200:
                             for track in tracks_resp.json().get('items', []):
                                 album_data['tracks'].append({
@@ -77,7 +88,6 @@ def artist_info_view(request):
 
 @csrf_exempt
 @login_required
-@spotify_token_required
 def save_track_to_playlist(request):
     if request.method == 'POST':
         track_title = request.POST['track_title']
@@ -101,20 +111,17 @@ def save_track_to_playlist(request):
     return redirect(next_url)
 
 @login_required
-@spotify_token_required
 def user_playlists_view(request):
-    playlists = Playlist.objects.all()  # O solo del usuario si agregas relación
+    playlists = Playlist.objects.all()
     return render(request, 'playlist.html', {'playlists': playlists})
 
 @require_POST
-@spotify_token_required
 def delete_playlist(request, playlist_id):
     playlist = get_object_or_404(Playlist, id=playlist_id)
     playlist.delete()
     return redirect('user_playlists')
 
 @require_POST
-@spotify_token_required
 def remove_track_from_playlist(request, playlist_id, track_id):
     playlist = get_object_or_404(Playlist, id=playlist_id)
     track = get_object_or_404(Track, id=track_id)
@@ -122,19 +129,13 @@ def remove_track_from_playlist(request, playlist_id, track_id):
     return redirect('user_playlists')
 
 @login_required
-@spotify_token_required
 def top_songs_artist(request):
     artist_name = request.GET.get('artist')
     artist_data = {}
     songs_data = []
-
     if artist_name:
-        token = request.session.get('access_token')
-        headers = {'Authorization': f'Bearer {token}'}
-
-        search_url = 'https://api.spotify.com/v1/search'
         params = {'q': artist_name, 'type': 'artist', 'limit': 15}
-        search_resp = requests.get(search_url, headers=headers, params=params)
+        search_resp = _make_spotify_request('https://api.spotify.com/v1/search', request, params=params)
 
         if search_resp.status_code == 200:
             artists = search_resp.json().get('artists', {}).get('items', [])
@@ -147,16 +148,15 @@ def top_songs_artist(request):
                 }
 
                 songs_url = f"https://api.spotify.com/v1/artists/{spotify_artist['id']}/top-tracks"
-                songs_resp = requests.get(songs_url, headers=headers, params={'market': 'ES'})
+                songs_resp = _make_spotify_request(songs_url, request, params={'market': 'ES'})
 
                 if songs_resp.status_code == 200:
                     for song in songs_resp.json().get('tracks', []):
-                        song_data = {
+                        songs_data.append({
                             'id': song['id'],
                             'title': song['name'],
                             'album': song['album']['name'],
-                        }
-                        songs_data.append(song_data)
+                        })
 
     context = {
         'artist': artist_data,
