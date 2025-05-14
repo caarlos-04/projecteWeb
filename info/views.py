@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 
 @login_required
+@spotify_token_required
 def redirect_info(request):
     access_token = request.session.get('access_token')
 
@@ -76,6 +77,7 @@ def artist_info_view(request):
 
 @csrf_exempt
 @login_required
+@spotify_token_required
 def save_track_to_playlist(request):
     if request.method == 'POST':
         track_title = request.POST['track_title']
@@ -99,17 +101,20 @@ def save_track_to_playlist(request):
     return redirect(next_url)
 
 @login_required
+@spotify_token_required
 def user_playlists_view(request):
     playlists = Playlist.objects.all()  # O solo del usuario si agregas relación
     return render(request, 'playlist.html', {'playlists': playlists})
 
 @require_POST
+@spotify_token_required
 def delete_playlist(request, playlist_id):
     playlist = get_object_or_404(Playlist, id=playlist_id)
     playlist.delete()
     return redirect('user_playlists')
 
 @require_POST
+@spotify_token_required
 def remove_track_from_playlist(request, playlist_id, track_id):
     playlist = get_object_or_404(Playlist, id=playlist_id)
     track = get_object_or_404(Track, id=track_id)

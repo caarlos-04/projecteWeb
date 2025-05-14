@@ -4,12 +4,12 @@
     <h1 class="info-title">Search an Artist</h1>
 
     <form method="get" action="{% url 'artist_search' %}" class="search-form">
-        <input type="text" name="artist" placeholder="Introduce el nombre del artista" required>
-        <button type="submit">Buscar</button>
+        <input type="text" name="artist" placeholder="Artist name" required>
+        <button type="submit">Search</button>
     </form>
 
     {% if artist %}
-    <h2>Álbumes de {{ artist.name }}</h2>
+    <h2>{{ artist.name }}'s Albums</h2>
     <img src="{{ artist.image }}" width="200">
 
     {% for album in albums %}
@@ -17,7 +17,7 @@
         <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="toggleTracks('{{ album.id }}')">
             <img src="{{ album.image }}" width="150">
             <h3>{{ album.title }}</h3>
-            <span style="font-size: 24px;">&#x25BC;</span> <!-- Flecha -->
+            <span style="font-size: 24px;">&#x25BC;</span>
         </div>
 
         <ul id="tracks-{{ album.id }}" class="track-list" style="display: none; margin-top: 10px;">
@@ -32,7 +32,7 @@
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
                     <select name="playlist_id">
-                        <option value="">Nueva playlist</option>
+                        <option value="">New playlist</option>
                         {% for pl in playlists %}
                         <option value="{{ pl.id }}">{{ pl.title }}</option>
                         {% endfor %}
