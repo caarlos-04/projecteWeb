@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="info-container">
+    <h1 class="info-title">Top Tracks from: </h1>
+
+    <form method="get" action="{% url 'top_songs_search' %}" class="search-form">
+        <input type="text" name="artist" placeholder="Artist name" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if artist %}
+        <h2>{{ artist.name }}</h2>
+        {% if artist.image %}
+            <img src="{{ artist.image }}" alt="{{ artist.name }}" width="200">
+        {% endif %}
+
+        {% if songs %}
+        <h3 style="margin-top: 20px;">Most popular songs</h3>
+        <ul>
+            {% for track in songs %}
+                <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    {{ track.title }}
+                    <form method="post" action="{% url 'save_track_to_playlist' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="track_title" value="{{ track.title }}">
+                        <input type="hidden" name="album_title" value="{{ track.album }}">
+                        <input type="hidden" name="artist_name" value="{{ artist.name }}">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                        <select name="playlist_id">
+                            <option value="">Create new</option>
+                            {% for pl in playlists %}
+                                <option value="{{ pl.id }}">{{ pl.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="new_playlist_title" required placeholder="New playlist name">
+                        <button type="submit">Save</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <p>We couldn't find any song...</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,12 +1,127 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Discover your most listened Artists{% endblock %}
-
 {% block content %}
-<link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
-<div class="info-container">
-    <h1>{{ user.username }}'s TOP Artists</h1>
-    <p>Working on it...</p>
-    <img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
+<h1>Selecciona un rang de temps</h1>
+
+<div class="artist-select-header">
+    <h1>Selecciona un rang de temps</h1>
+    <select id="timeRangeSelect">
+        <option value="">-- Selecciona un rang --</option>
+        <option value="short_term">Últim mes</option>
+        <option value="medium_term">Últims 6 meses</option>
+        <option value="long_term">Últims anys</option>
+    </select>
 </div>
+
+<div id="artistsContainer">
+    <!-- Artists container -->
+</div>
+
+<script>
+document.getElementById('timeRangeSelect').addEventListener('change', function () {
+    const timeRange = this.value;
+
+    if (timeRange) {
+        fetch(`/music/top-artists/?time_range=${timeRange}`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('artistsContainer');
+                container.innerHTML = '';
+
+                if (data.artists && data.artists.length > 0) {
+                    let count = 1;
+                    data.artists.forEach(artist => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                                <div class="artist-card">
+                                    <img src="${artist.image}" alt="${artist.name}">
+                                    <h3>${count}. ${artist.name}</h3>
+                                </div>
+                        `;
+                        container.appendChild(div);
+                        count++;
+                    });
+                } else {
+                    container.innerHTML = "<p>No s'han pogut trobar artistes<p>";
+                }
+            });
+    }
+});
+</script>
+    <style>
+    .artist-select-header h1 {
+    color: #1DB954;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+    .artist-select-header {
+    background-color: #181818;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.artist-select-header h1 {
+    color: #1DB954;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.artist-select-header select {
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #222;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+
+.artist-select-header select:focus {
+    border-color: #1DB954;
+    outline: none;
+}
+
+#artistsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.artist-card {
+    background-color: #181818;
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1rem;
+}
+
+.artist-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.artist-card img {
+    width: 100%;
+    height: auto; /* Asegura que la altura se ajuste proporcionalmente */
+    border-radius: 8px;
+    max-height: 500px;
+    object-fit: contain; /* Asegura que la imagen se ajusta sin recortes */
+    object-position: center; /* Centra la imagen en el contenedor */
+    margin-bottom: 0.75rem;
+}
+
+.artist-card h3 {
+    color: #1DB954;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+    </style>
 {% endblock %}
