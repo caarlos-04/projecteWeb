@@ -94,20 +94,20 @@ def save_track_to_playlist(request):
     album_title = request.POST['album_title']
     artist_name = request.POST['artist_name']
     playlist_id = request.POST.get('playlist_id')
-    new_playlist_title = request.POST.get('new_playlisttitle')
+    new_playlist_title = request.POST.get('new_playlist_title')
 
-    artist,  = Artist.objects.get_or_create(name=artist_name)
-    album,  = Album.objects.get_or_create(title=album_title, artist=artist)
-    track,  = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
+    artist, _ = Artist.objects.get_or_create(name=artist_name)
+    album, _ = Album.objects.get_or_create(title=album_title, artist=artist)
+    track, _ = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
 
     if playlist_id:
         playlist = Playlist.objects.get(id=playlist_id, user=request.user)
     else:
-        playlist,  = Playlist.objects.get_or_create(title=new_playlist_title, user=request.user)
+        playlist, _ = Playlist.objects.get_or_create(title=new_playlist_title, user=request.user)
 
     playlist.tracks.add(track)
 
-    return JsonResponse({'success': True, 'message': f'"{track.title}" saved to "{playlist.title}"'})
+    return JsonResponse({'success': True, 'message': f'{track_title} saved to {playlist.title}'})
 
 @login_required
 def user_playlists_view(request):
