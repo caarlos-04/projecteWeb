@@ -112,20 +112,48 @@ def save_track_to_playlist(request):
 
 @login_required
 def user_playlists_view(request):
-    playlists = Playlist.objects.all()
+    playlists = Playlist.objects.filter(user=request.user)
     return render(request, 'playlist.html', {'playlists': playlists})
 
 @require_POST
 def delete_playlist(request, playlist_id):
-    playlist = get_object_or_404(Playlist, id=playlist_id)
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+
+    for track in playlist.tracks.all():
+        playlist.tracks.remove(track)
+
+        if not check_track_in_other_playlists(track, playlist):
+            if not check_album_songs_left(track.album):
+                track.album.delete()
+            if not check_artist_songs_left(track.artist):
+                track.artist.delete()
+            track.delete()
+
     playlist.delete()
     return redirect('user_playlists')
 
+def check_album_songs_left(album):
+    return Playlist.objects.filter(tracks__album=album).exists()
+
+def check_artist_songs_left(artist):
+    return Playlist.objects.filter(tracks__artist=artist).exists()
+
+def check_track_in_other_playlists(track, current_playlist):
+    return Playlist.objects.filter(tracks=track).exclude(id=current_playlist.id).exists()
+
 @require_POST
 def remove_track_from_playlist(request, playlist_id, track_id):
-    playlist = get_object_or_404(Playlist, id=playlist_id)
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
     track = get_object_or_404(Track, id=track_id)
+
     playlist.tracks.remove(track)
+
+    if not check_track_in_other_playlists(track, playlist):
+        if not check_artist_songs_left(track.artist):
+            track.artist.delete()
+        if not check_album_songs_left(track.album):
+            track.album.delete()
+        track.delete()
     return redirect('user_playlists')
 
 @login_required
