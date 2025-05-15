@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -86,29 +87,27 @@ def artist_info_view(request):
 
     return render(request, 'artist_info.html', context)
 
-@csrf_exempt
+@require_POST
 @login_required
 def save_track_to_playlist(request):
-    if request.method == 'POST':
-        track_title = request.POST['track_title']
-        album_title = request.POST['album_title']
-        artist_name = request.POST['artist_name']
-        playlist_id = request.POST.get('playlist_id')
-        new_playlist_title = request.POST.get('new_playlist_title')
+    track_title = request.POST['track_title']
+    album_title = request.POST['album_title']
+    artist_name = request.POST['artist_name']
+    playlist_id = request.POST.get('playlist_id')
+    new_playlist_title = request.POST.get('new_playlisttitle')
 
-        artist, _ = Artist.objects.get_or_create(name=artist_name)
-        album, _ = Album.objects.get_or_create(title=album_title, artist=artist)
-        track, _ = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
+    artist,  = Artist.objects.get_or_create(name=artist_name)
+    album,  = Album.objects.get_or_create(title=album_title, artist=artist)
+    track,  = Track.objects.get_or_create(title=track_title, album=album, artist=artist)
 
-        if playlist_id:
-            playlist = Playlist.objects.get(id=playlist_id)
-        else:
-            playlist, _ = Playlist.objects.get_or_create(title=new_playlist_title, user=request.user)
+    if playlist_id:
+        playlist = Playlist.objects.get(id=playlist_id, user=request.user)
+    else:
+        playlist,  = Playlist.objects.get_or_create(title=new_playlist_title, user=request.user)
 
-        playlist.tracks.add(track)
+    playlist.tracks.add(track)
 
-    next_url = request.POST.get('next', reverse('artist_search'))
-    return redirect(next_url)
+    return JsonResponse({'success': True, 'message': f'"{track.title}" saved to "{playlist.title}"'})
 
 @login_required
 def user_playlists_view(request):
