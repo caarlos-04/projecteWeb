@@ -6,15 +6,14 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 
 class MusicTests(StaticLiveServerTestCase):
-    """Pruebas integradas para la aplicación musical (unitarias y E2E)"""
 
     def setUp(self):
-        """Configuración inicial para todas las pruebas"""
-        # Crear usuarios para probar restricciones de acceso
+        """Configuració inicial per a les proves"""
+        # Crear usuaris per a les proves d'acces
         self.user1 = User.objects.create_user(username="user1", password="password1_")
         self.user2 = User.objects.create_user(username="user2", password="password2_")
 
-        # Crear artistas, álbumes y canciones para las pruebas
+        # Crear artistes, àlbums i cançons per a les proves
         self.artist1 = Artist.objects.create(name="The Beatles")
         self.artist2 = Artist.objects.create(name="Coldplay")
 
@@ -25,27 +24,27 @@ class MusicTests(StaticLiveServerTestCase):
         self.track2 = Track.objects.create(title="Something", album=self.album1, artist=self.artist1)
         self.track3 = Track.objects.create(title="Bohemian Rhapsody", album=self.album2, artist=self.artist2)
 
-        # Crear playlists para cada usuario
+        # Crear playlists per cada usuari
         self.playlist1 = Playlist.objects.create(title="Rock Clásico", user=self.user1)
         self.playlist1.tracks.add(self.track1, self.track3)
 
         self.playlist2 = Playlist.objects.create(title="Para Estudiar", user=self.user2)
         self.playlist2.tracks.add(self.track2)
 
-        # Cliente para simular navegador
+        # Client per simular navegador
         self.client = Client()
 
-    # PRUEBAS DE AUTENTICACIÓN Y SEGURIDAD
+    # PROVA D'AUTENTICACIÓ I SEGURETAT
 
     def test_redirect_to_login_if_not_authenticated(self):
-        """Verificar redirección al login cuando no hay autenticación"""
+        """Verificar redirecció al login si no està autenticat"""
         self.client.logout()
         response = self.client.get(reverse('music_info'))
         self.assertRedirects(response, '/accounts/login/?next=' + reverse('music_info'),
                              fetch_redirect_response=False)
 
     def test_authentication_required(self):
-        """E2E: Verificar que se requiere autenticación para acceder a las funcionalidades"""
+        """E2E: Verificar que requereix autenticació per acceder a la informació musical"""
         self.client.logout()
         response = self.client.get(reverse('playlists'))
         self.assertEqual(response.status_code, 302)
@@ -61,7 +60,7 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertNotContains(response, "No debería crearse")
 
     def test_security_restrictions(self):
-        """E2E: Verificar restricciones de seguridad para acceso a playlists"""
+        """E2E: Verificar restriccions de seguretat"""
         self.client.login(username="user2", password="password2_")
         response = self.client.post(reverse('delete_playlist', args=[self.playlist1.id]))
         self.assertEqual(response.status_code, 404)
@@ -75,31 +74,31 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertContains(response, "Para Estudiar")
         self.assertNotContains(response, "Rock Clásico")
 
-    # PRUEBAS DE BÚSQUEDA Y VISUALIZACIÓN
+    # PROVES DE CERCA I VISUALITZACIÓ
 
     def test_search_artist_and_view_tracks(self):
-        """Probar la búsqueda de artistas y visualización de canciones"""
+        """Provar cerca d'artistes i visualització de les seves cançons"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('music_info'), {'artist': 'Coldplay'})
         self.assertEqual(response.status_code, 200)
 
     def test_view_top_songs(self):
-        """Probar la visualización de canciones más populares"""
+        """Provar visualització de les cançons més escoltades"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('top_songs_search'), {'artist': 'Coldplay'})
         self.assertEqual(response.status_code, 200)
 
     def test_view_playlists(self):
-        """Probar la visualización de playlists del usuario"""
+        """Provar visualització de playlists"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('playlists'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Rock Clásico')
 
-    # PRUEBAS DE OPERACIONES CRUD INDIVIDUALES
+    # PROVES DE FUNCIONALITAT
 
     def test_create_new_playlist_and_add_track(self):
-        """Probar la creación de una nueva playlist con una canción"""
+        """Provar la creació d'una nova playlist i afegir una cançó"""
         self.client.login(username="user1", password="password1_")
         response = self.client.post(reverse('save_track_to_playlist'), {
             'track_title': 'Believer',
@@ -112,7 +111,7 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertTrue(playlist.tracks.filter(title='Believer').exists())
 
     def test_add_track_to_existing_playlist(self):
-        """Probar la adición de una canción a una playlist existente"""
+        """Provar afegir una cançó a una playlist existent"""
         self.client.login(username="user1", password="password1_")
         response = self.client.post(reverse('save_track_to_playlist'), {
             'track_title': self.track2.title,
@@ -125,7 +124,7 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertTrue(self.playlist1.tracks.filter(title=self.track2.title).exists())
 
     def test_remove_track_from_playlist(self):
-        """Probar la eliminación de una canción de una playlist"""
+        """Provar eliminació d'una cançó d'una playlist"""
         self.client.login(username="user1", password="password1_")
         response = self.client.post(
             reverse('remove_track_from_playlist', args=[self.playlist1.id, self.track1.id])
@@ -135,22 +134,22 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertFalse(self.playlist1.tracks.filter(id=self.track1.id).exists())
 
     def test_delete_playlist(self):
-        """Probar la eliminación de una playlist"""
+        """Provar eliminació d'una playlist"""
         self.client.login(username="user1", password="password1_")
         response = self.client.post(reverse('delete_playlist', args=[self.playlist1.id]))
         self.assertRedirects(response, reverse('user_playlists'))
         self.assertFalse(Playlist.objects.filter(id=self.playlist1.id).exists())
 
     def test_error_handling_invalid_playlist(self):
-        """Verificar manejo de errores al intentar acceder a una playlist inválida"""
+        """Control d'errors"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('delete_playlist', args=[99999]))
         self.assertEqual(response.status_code, 405)
 
-    # PRUEBAS DE FLUJOS COMPLETOS (E2E)
+    # PROBES DE FLUXOS COMPLETS
 
     def test_create_playlist_workflow(self):
-        """E2E: Flujo completo de creación de una playlist con varias canciones"""
+        """E2E: Fluxe complet de la creació d'una playlist"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('music_info'), {'artist': 'Coldplay'})
         self.assertEqual(response.status_code, 200)
@@ -176,7 +175,7 @@ class MusicTests(StaticLiveServerTestCase):
         self.assertContains(response, self.track3.title)
 
     def test_update_playlist_workflow(self):
-        """E2E: Flujo completo de actualización de una playlist"""
+        """E2E: Fluxe complet d'actulització d'una playlist"""
         self.client.login(username="user1", password="password1_")
         response = self.client.get(reverse('playlists'))
         self.assertContains(response, "Rock Clásico")

@@ -49,6 +49,7 @@ THE CONTENT IS SPECIFIED IN THE PDF HANDED, as we cannot post it here.
 In order to prevent errors and start from a clean state,  rebuild the images without using 
 any cache, and restart everything, execute the following sequence of commands:
 
+[!IMPORTANT]
 docker compose down
 docker compose build --no-cache
 docker compose up
