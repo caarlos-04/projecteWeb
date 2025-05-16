@@ -115,6 +115,7 @@ def user_playlists_view(request):
     return render(request, 'playlist.html', {'playlists': playlists})
 
 @require_POST
+@login_required
 def delete_playlist(request, playlist_id):
     playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
 
