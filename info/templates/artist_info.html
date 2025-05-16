@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="info-container">
     <h1 class="info-title">Search an Artist</h1>
@@ -9,42 +10,42 @@
     </form>
 
     {% if artist %}
-    <h2>{{ artist.name }}'s Albums</h2>
-    <img src="{{ artist.image }}" width="200">
+        <h2>{{ artist.name }}'s Albums</h2>
+        <img src="{{ artist.image }}" width="200">
 
-    {% for album in albums %}
-    <div class="album">
-        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="toggleTracks('{{ album.id }}')">
-            <img src="{{ album.image }}" width="150">
-            <h3>{{ album.title }}</h3>
-            <span style="font-size: 24px;">&#x25BC;</span>
-        </div>
+        {% for album in albums %}
+            <div class="album">
+                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="toggleTracks('{{ album.id }}')">
+                    <img src="{{ album.image }}" width="150">
+                    <h3>{{ album.title }}</h3>
+                    <span style="font-size: 24px;">&#x25BC;</span>
+                </div>
 
-        <ul id="tracks-{{ album.id }}" class="track-list" style="display: none; margin-top: 10px;">
-            {% for track in album.tracks %}
-            <li style="display: flex; align-items: center; gap: 10px;">
-                {{ track.title }}
-                <form method="post" action="{% url 'save_track_to_playlist' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="track_title" value="{{ track.title }}">
-                    <input type="hidden" name="album_title" value="{{ album.title }}">
-                    <input type="hidden" name="artist_name" value="{{ artist.name }}">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <ul id="tracks-{{ album.id }}" class="track-list" style="display: none; margin-top: 10px;">
+                    {% for track in album.tracks %}
+                        <li style="display: flex; align-items: center; gap: 10px;">
+                            {{ track.title }}
+                            <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track">
+                                {% csrf_token %}
+                                <input type="hidden" name="track_title" value="{{ track.title }}">
+                                <input type="hidden" name="album_title" value="{{ album.title }}">
+                                <input type="hidden" name="artist_name" value="{{ artist.name }}">
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-                    <select name="playlist_id">
-                        <option value="">New playlist</option>
-                        {% for pl in playlists %}
-                        <option value="{{ pl.id }}">{{ pl.title }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="text" name="new_playlist_title" placeholder="New playlist name">
-                    <button type="submit">+</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
+                                <select name="playlist_id">
+                                    <option value="">New playlist</option>
+                                    {% for pl in playlists %}
+                                        <option value="{{ pl.id }}">{{ pl.title }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" name="new_playlist_title" placeholder="New playlist name">
+                                <button type="submit">+</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
     {% endif %}
 </div>
 
@@ -53,5 +54,36 @@ function toggleTracks(id) {
     const list = document.getElementById(`tracks-${id}`);
     list.style.display = list.style.display === 'none' ? 'block' : 'none';
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.ajax-save-track').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const csrfToken = form.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('Something went wrong');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error');
+            });
+        });
+    });
+});
 </script>
 {% endblock %}

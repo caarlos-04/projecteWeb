@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="info-container">
-    <h1 class="info-title">Top Tracks from: </h1>
+    <h1 class="info-title">Top Tracks from:</h1>
 
     <form method="get" action="{% url 'top_songs_search' %}" class="search-form">
         <input type="text" name="artist" placeholder="Artist name" required>
@@ -16,33 +16,66 @@
         {% endif %}
 
         {% if songs %}
-        <h3 style="margin-top: 20px;">Most popular songs</h3>
-        <ul>
-            {% for track in songs %}
-                <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    {{ track.title }}
-                    <form method="post" action="{% url 'save_track_to_playlist' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="track_title" value="{{ track.title }}">
-                        <input type="hidden" name="album_title" value="{{ track.album }}">
-                        <input type="hidden" name="artist_name" value="{{ artist.name }}">
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <h3 style="margin-top: 20px;">Most popular songs</h3>
+            <ul>
+                {% for track in songs %}
+                    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        {{ track.title }}
+                        <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track">
+                            {% csrf_token %}
+                            <input type="hidden" name="track_title" value="{{ track.title }}">
+                            <input type="hidden" name="album_title" value="{{ track.album }}">
+                            <input type="hidden" name="artist_name" value="{{ artist.name }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-                        <select name="playlist_id">
-                            <option value="">Create new</option>
-                            {% for pl in playlists %}
-                                <option value="{{ pl.id }}">{{ pl.title }}</option>
-                            {% endfor %}
-                        </select>
-                        <input type="text" name="new_playlist_title" required placeholder="New playlist name">
-                        <button type="submit">Save</button>
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
+                            <select name="playlist_id">
+                                <option value="">Create new</option>
+                                {% for pl in playlists %}
+                                    <option value="{{ pl.id }}">{{ pl.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="text" name="new_playlist_title" required placeholder="New playlist name">
+                            <button type="submit">Save</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         {% else %}
             <p>We couldn't find any song...</p>
         {% endif %}
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.ajax-save-track').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const csrfToken = form.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('Something went wrong');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error');
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
