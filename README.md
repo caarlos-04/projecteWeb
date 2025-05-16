@@ -79,9 +79,7 @@ of our application, SpotyStats, asking for some credentials to log in.
 
 Use the following credentials to log in:
 
-- Username: edf
-
-- Password: 12345678
+CREDENTIALS SPECIFIED IN THE PDF HANDED.
 
 Once logged in, you'll be able to manage models, users, and data through a graphical web 
 interface.
