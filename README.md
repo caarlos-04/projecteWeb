@@ -35,7 +35,7 @@ git clone https://github.com/caarlos-04/projecteWeb.git
 
 Search the Docker app in you computer and just open it. Do not introduce any command yet.
 
-### 2.3. Create a .env file with the follwing content
+### 2.3. Create a .env file with the following content
 
 In order to connect to the Spotify API, you need to provide your API credentials. 
 These credentials are not stored in the GitHub repository (they are excluded via .gitignore), 
@@ -43,9 +43,7 @@ so you'll need to manually create a .env file at the root of the project directo
 
 Create a file in the root of the project called just ".env" and paste the following content inside:
 
-SPOTIPY_CLIENT_ID=017ef90642c14d9ab50c22f1d73f507b
-SPOTIPY_CLIENT_SECRET=0e87e669caad4ee8bae84864f190162a
-SPOTIPY_REDIRECT_URI=http://localhost:8000/music/spotify-callback/
+THE CONTENT IS SPECIFIED IN THE PDF HANDED, as we cannot post it here.
 
 ### 2.4. Introduce the following Docker commands
 In order to prevent errors and start from a clean state,  rebuild the images without using 
