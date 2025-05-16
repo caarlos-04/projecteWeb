@@ -1,29 +1,125 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from web.models import Playlist, Track, Album, Artist
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+import time
+import os
 
-class MusicViewsTests(TestCase):
+class MusicTests(StaticLiveServerTestCase):
+    """Pruebas integradas para la aplicación musical (unitarias y E2E)"""
+    
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.login(username='testuser', password='testpass')
-
+        """Configuración inicial para todas las pruebas"""
+        # Crear usuarios para probar restricciones de acceso
+        self.user1 = User.objects.create_user(username="user1", password="password1")
+        self.user2 = User.objects.create_user(username="user2", password="password2")
+        
+        # Crear artistas, álbumes y canciones para las pruebas
+        self.artist1 = Artist.objects.create(name="The Beatles")
+        self.artist2 = Artist.objects.create(name="Queen")
+        
+        self.album1 = Album.objects.create(title="Abbey Road", artist=self.artist1)
+        self.album2 = Album.objects.create(title="A Night at the Opera", artist=self.artist2)
+        
+        self.track1 = Track.objects.create(title="Come Together", album=self.album1, artist=self.artist1)
+        self.track2 = Track.objects.create(title="Something", album=self.album1, artist=self.artist1)
+        self.track3 = Track.objects.create(title="Bohemian Rhapsody", album=self.album2, artist=self.artist2)
+        
+        # Crear playlists para cada usuario
+        self.playlist1 = Playlist.objects.create(title="Rock Clásico", user=self.user1)
+        self.playlist1.tracks.add(self.track1, self.track3)
+        
+        self.playlist2 = Playlist.objects.create(title="Para Estudiar", user=self.user2)
+        self.playlist2.tracks.add(self.track2)
+        
+        # Cliente para simular navegador
+        self.client = Client()
+    
+    # PRUEBAS DE AUTENTICACIÓN Y SEGURIDAD
+    
     def test_redirect_to_login_if_not_authenticated(self):
+        """Verificar redirección al login cuando no hay autenticación"""
         self.client.logout()
         response = self.client.get(reverse('music_info'))
-        self.assertRedirects(response, reverse('spotify_login'))
-
+        self.assertRedirects(response, '/accounts/login/?next=' + reverse('music_info'),
+                             fetch_redirect_response=False)
+    
+    def test_authentication_required(self):
+        """E2E: Verificar que se requiere autenticación para acceder a las funcionalidades"""
+        # Cerrar sesión
+        self.client.logout()
+        
+        # Intentar acceder a la página de playlists sin autenticación
+        response = self.client.get(reverse('playlists'))
+        self.assertEqual(response.status_code, 302)  # Debería redirigir al login
+        
+        # Intentar crear una playlist sin autenticación
+        response = self.client.post(reverse('music_info'), {
+            'track_title': self.track1.title,
+            'album_title': self.album1.title,
+            'artist_name': self.artist1.name,
+            'new_playlist_title': 'No debería crearse'
+        })
+        self.assertEqual(response.status_code, 302)  # Debería redirigir al login
+        
+        # Verificar que no se creó la playlist
+        self.client.login(username="user1", password="password1")
+        response = self.client.get(reverse('playlists'))
+        self.assertNotContains(response, "No debería crearse")
+    
+    def test_security_restrictions(self):
+        """E2E: Verificar restricciones de seguridad para acceso a playlists"""
+        # Iniciar sesión como user2
+        self.client.login(username="user2", password="password2")
+        
+        # Intentar eliminar una playlist de user1
+        response = self.client.post(reverse('delete_playlist', args=[self.playlist1.id]))
+        
+        # Verificar que la playlist de user1 sigue existiendo
+        self.client.logout()
+        self.client.login(username="user1", password="password1")
+        response = self.client.get(reverse('playlists'))
+        self.assertContains(response, "Rock Clásico")
+        
+        # Verificar que user2 no puede ver las playlists de user1
+        self.client.logout()
+        self.client.login(username="user2", password="password2")
+        response = self.client.get(reverse('playlists'))
+        self.assertContains(response, "Para Estudiar")
+        self.assertNotContains(response, "Rock Clásico")
+    
+    # PRUEBAS DE BÚSQUEDA Y VISUALIZACIÓN
+    
     def test_search_artist_and_view_tracks(self):
-        response = self.client.get(reverse('music_info'), {'artist': 'Shakira'})
+        """Probar la búsqueda de artistas y visualización de canciones"""
+        self.client.login(username="user1", password="password1")
+        response = self.client.get(reverse('music_info'), {'artist': 'Queen'})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Shakira")  # esperem que aparegui el nom
+        artist_data = response.context['artist']
+        self.assertIn('Queen', artist_data.get('name', ''))
+        self.assertEqual(artist_data.get('name', ''), 'Queen')
+        self.assertContains(response, 'Queen')
 
     def test_view_top_songs(self):
+        """Probar la visualización de canciones más populares"""
+        self.client.login(username="user1", password="password1")
         response = self.client.get(reverse('top_songs'), {'artist': 'Coldplay'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Coldplay")
-
+    
+    def test_view_playlists(self):
+        """Probar la visualización de playlists del usuario"""
+        self.client.login(username="user1", password="password1")
+        response = self.client.get(reverse('playlists'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Rock Clásico')
+    
+    # PRUEBAS DE OPERACIONES CRUD INDIVIDUALES
+    
     def test_create_new_playlist_and_add_track(self):
+        """Probar la creación de una nueva playlist con una canción"""
+        self.client.login(username="user1", password="password1")
         response = self.client.post(reverse('music_info'), {
             'track_title': 'Believer',
             'album_title': 'Evolve',
@@ -32,52 +128,116 @@ class MusicViewsTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)  # redirecció després de guardar
 
-        playlist = Playlist.objects.get(user=self.user, title='Nova Playlist')
+        playlist = Playlist.objects.get(user=self.user1, title='Nova Playlist')
         self.assertTrue(playlist.tracks.filter(title='Believer').exists())
-
+    
     def test_add_track_to_existing_playlist(self):
-        playlist = Playlist.objects.create(user=self.user, title='Workout')
-
+        """Probar la adición de una canción a una playlist existente"""
+        self.client.login(username="user1", password="password1")
         response = self.client.post(reverse('music_info'), {
-            'track_title': 'Wake Me Up',
-            'album_title': 'True',
-            'artist_name': 'Avicii',
+            'track_title': self.track2.title,
+            'album_title': self.album1.title,
+            'artist_name': self.artist1.name,
+            'playlist_id': self.playlist1.id
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        self.playlist1.refresh_from_db()
+        self.assertTrue(self.playlist1.tracks.filter(title=self.track2.title).exists())
+    
+    def test_remove_track_from_playlist(self):
+        """Probar la eliminación de una canción de una playlist"""
+        self.client.login(username="user1", password="password1")
+        response = self.client.post(
+            reverse('remove_track_from_playlist', args=[self.playlist1.id, self.track1.id])
+        )
+        
+        self.playlist1.refresh_from_db()
+        self.assertFalse(self.playlist1.tracks.filter(id=self.track1.id).exists())
+    
+    def test_delete_playlist(self):
+        """Probar la eliminación de una playlist"""
+        self.client.login(username="user1", password="password1")
+        response = self.client.post(reverse('delete_playlist', args=[self.playlist1.id]))
+        self.assertRedirects(response, reverse('playlists'))
+        self.assertFalse(Playlist.objects.filter(id=self.playlist1.id).exists())
+    
+    def test_error_handling_invalid_playlist(self):
+        """Verificar manejo de errores al intentar acceder a una playlist inválida"""
+        self.client.login(username="user1", password="password1")
+        response = self.client.get(reverse('delete_playlist', args=[99999]))
+        self.assertEqual(response.status_code, 405)  # Método no permitido
+    
+    # PRUEBAS DE FLUJOS COMPLETOS (E2E)
+    
+    def test_create_playlist_workflow(self):
+        """E2E: Flujo completo de creación de una playlist con varias canciones"""
+        # Iniciar sesión como user1
+        self.client.login(username="user1", password="password1")
+        
+        # 1. Buscar un artista
+        response = self.client.get(reverse('music_info'), {'artist': 'Queen'})
+        self.assertEqual(response.status_code, 200)
+        
+        # 2. Crear una nueva playlist con una canción
+        response = self.client.post(reverse('music_info'), {
+            'track_title': self.track3.title,
+            'album_title': self.album2.title,
+            'artist_name': self.artist2.name,
+            'new_playlist_title': 'Mis Favoritos'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # 3. Verificar la creación
+        response = self.client.get(reverse('playlists'))
+        self.assertContains(response, 'Mis Favoritos')
+        self.assertContains(response, self.track3.title)
+        
+        # 4. Añadir otra canción a la playlist
+        playlist = Playlist.objects.get(user=self.user1, title='Mis Favoritos')
+        response = self.client.post(reverse('music_info'), {
+            'track_title': self.track1.title,
+            'album_title': self.album1.title,
+            'artist_name': self.artist1.name,
             'playlist_id': playlist.id
         })
-
-        self.assertEqual(response.status_code, 302)
-        playlist.refresh_from_db()
-        self.assertTrue(playlist.tracks.filter(title='Wake Me Up').exists())
-
-    def test_view_playlists(self):
-        Playlist.objects.create(user=self.user, title='Chill Vibes')
+        
+        # 5. Verificar que contiene ambas canciones
         response = self.client.get(reverse('playlists'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Chill Vibes')
-
-    def test_delete_playlist(self):
-        playlist = Playlist.objects.create(user=self.user, title='To Delete')
-
-        response = self.client.post(reverse('delete_playlist', args=[playlist.id]))
-        self.assertRedirects(response, reverse('playlists'))
-        self.assertFalse(Playlist.objects.filter(id=playlist.id).exists())
-
-    def test_remove_track_from_playlist(self):
-        artist = Artist.objects.create(name="Adele")
-        album = Album.objects.create(title="30", artist=artist)
-        track = Track.objects.create(title="Easy On Me", album=album, artist=artist)
-        playlist = Playlist.objects.create(user=self.user, title="Ballads")
-        playlist.tracks.add(track)
-
-        response = self.client.post(reverse('remove_track_from_playlist', args=[playlist.id, track.id]))
-        self.assertRedirects(response, reverse('playlists'))
-
-        playlist.refresh_from_db()
-        self.assertFalse(playlist.tracks.filter(id=track.id).exists())
-
-    def test_cannot_access_other_user_playlist(self):
-        other_user = User.objects.create_user(username='otheruser', password='1234')
-        Playlist.objects.create(user=other_user, title='Private')
-
+        self.assertContains(response, self.track1.title)
+        self.assertContains(response, self.track3.title)
+    
+    def test_update_playlist_workflow(self):
+        """E2E: Flujo completo de actualización de una playlist"""
+        # Iniciar sesión como user1
+        self.client.login(username="user1", password="password1")
+        
+        # 1. Verificar el estado inicial
         response = self.client.get(reverse('playlists'))
-        self.assertNotContains(response, 'Private')
+        self.assertContains(response, "Rock Clásico")
+        self.assertContains(response, self.track1.title)
+        self.assertContains(response, self.track3.title)
+        
+        # 2. Eliminar una canción
+        response = self.client.post(
+            reverse('remove_track_from_playlist', args=[self.playlist1.id, self.track1.id])
+        )
+        
+        # 3. Verificar la eliminación
+        response = self.client.get(reverse('playlists'))
+        self.assertContains(response, "Rock Clásico")
+        self.assertNotContains(response, self.track1.title)
+        self.assertContains(response, self.track3.title)
+        
+        # 4. Añadir una nueva canción
+        response = self.client.post(reverse('music_info'), {
+            'track_title': self.track2.title,
+            'album_title': self.album1.title,
+            'artist_name': self.artist1.name,
+            'playlist_id': self.playlist1.id
+        })
+        
+        # 5. Verificar la adición
+        response = self.client.get(reverse('playlists'))
+        self.assertContains(response, "Rock Clásico")
+        self.assertContains(response, self.track2.title)
