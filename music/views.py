@@ -302,6 +302,7 @@ def recommendations(request):
             'image': track['album']['images'][0]['url'] if track['album']['images'] else '',
         } for track in tracks]
 
+
         return JsonResponse({'recommendations': recommendations})
 
     except Exception as e:
