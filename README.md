@@ -41,9 +41,7 @@ In order to connect to the Spotify API, you need to provide your API credentials
 These credentials are not stored in the GitHub repository (they are excluded via .gitignore), 
 so you'll need to manually create a .env file at the root of the project directory.
 
-Create a file in the root of the project called just ".env" and paste the following content inside:
-
-THE CONTENT IS SPECIFIED IN THE PDF HANDED, as we cannot post it here.
+Create a file in the root of the project called just ".env" and paste the app credentials from the Spotify API
 
 ### 2.4. Introduce the following Docker commands
 In order to prevent errors and start from a clean state,  rebuild the images without using 
@@ -78,9 +76,11 @@ of our application, SpotyStats, asking for some credentials to log in.
 
 ### 2.6. Introduce the credentials
 
-Use the following credentials to log in:
-
-CREDENTIALS SPECIFIED IN THE PDF HANDED.
+In order to create super user and access the Django control pannel use the command:
+```bash
+python3 manage.py cratusuperuser
+```
+and introduce the credentials you want.
 
 Once logged in, you'll be able to manage models, users, and data through a graphical web 
 interface.
