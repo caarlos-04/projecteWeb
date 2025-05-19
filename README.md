@@ -29,7 +29,9 @@ The project is available at the following public GitHub repository:
 
 To get a local copy of the project, use the following command in your terminal:
 
+```bash
 git clone https://github.com/caarlos-04/projecteWeb.git
+```
 
 ### 2.2. Run the Docker App
 
@@ -48,9 +50,11 @@ In order to prevent errors and start from a clean state,  rebuild the images wit
 any cache, and restart everything, execute the following sequence of commands:
 
 **⚠️ IMPORTANT:**
-1. docker compose down
-2. docker compose build --no-cache
-3. docker compose up
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up
+```
 
 This commands will:
 
@@ -78,7 +82,7 @@ of our application, SpotyStats, asking for some credentials to log in.
 
 In order to create super user and access the Django control pannel use the command:
 ```bash
-python3 manage.py cratusuperuser
+python3 manage.py createsuperuser
 ```
 and introduce the credentials you want.
 
