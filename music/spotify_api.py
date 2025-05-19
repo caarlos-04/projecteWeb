@@ -89,3 +89,27 @@ def refresh_access_token(session):
             session['refresh_token'] = tokens['refresh_token']
         return True
     return False
+
+def get_spotify_headers(request):
+    access_token = request.session.get('access_token')
+    refresh_token = request.session.get('refresh_token')
+
+    # Si no hi ha access_token, no pots fer res
+    if not access_token:
+        raise Exception("No access token found")
+
+    # Intenta fer una crida de prova
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+
+    # Si el token ha expirat, refresca'l
+    if response.status_code == 401:
+        new_tokens = refresh_access_token(refresh_token)
+        access_token = new_tokens['access_token']
+        request.session['access_token'] = access_token
+        headers["Authorization"] = f"Bearer {access_token}"
+
+    return headers
+
