@@ -9,6 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 import requests
 from django.urls import reverse
 from music.spotify_api import refresh_access_token
+from music.spotify_api import get_spotify_headers
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -224,25 +225,85 @@ def spotify_token_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-@login_required
 def recommendations(request):
+    import logging
+    import requests
+    from django.http import JsonResponse
 
-    dummy_recommendations = [
-        {
-            "name": "Cançó Recomanada 1",
-            "artist": "Artista 1",
-            "image": "https://via.placeholder.com/300x300.png?text=1"
-        },
-        {
-            "name": "Cançó Recomanada 2",
-            "artist": "Artista 2",
-            "image": "https://via.placeholder.com/300x300.png?text=2"
-        },
-        {
-            "name": "Cançó Recomanada 3",
-            "artist": "Artista 3",
-            "image": "https://via.placeholder.com/300x300.png?text=3"
+    time_range = request.GET.get('time_range', 'medium_term')
+    fallback_ranges = ['medium_term', 'long_term', 'short_term']
+    headers = get_spotify_headers(request)
+
+    seed_track_ids = []
+    seed_artist_ids = []
+
+    try:
+        # 🔹 PRIMER INTENT: obtenir top tracks
+        for range_option in [time_range] + [r for r in fallback_ranges if r != time_range]:
+            response = requests.get(
+                f"https://api.spotify.com/v1/me/top/tracks?limit=5&time_range={range_option}",
+                headers=headers
+            )
+            if response.status_code == 200:
+                data = response.json()
+                seed_track_ids = [track['id'] for track in data.get('items', [])]
+                if seed_track_ids:
+                    break  # Tenim tracks
+            else:
+                logging.warning(f"Top tracks failed: {response.status_code} {response.text}")
+
+        # 🔹 SEGON INTENT: si no hi ha tracks, provem amb artistes
+        if not seed_track_ids:
+            for range_option in [time_range] + [r for r in fallback_ranges if r != time_range]:
+                response = requests.get(
+                    f"https://api.spotify.com/v1/me/top/artists?limit=5&time_range={range_option}",
+                    headers=headers
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    seed_artist_ids = [artist['id'] for artist in data.get('items', [])]
+                    if seed_artist_ids:
+                        break
+                else:
+                    logging.warning(f"Top artists failed: {response.status_code} {response.text}")
+
+        # 🔹 TERCER INTENT: si tampoc tenim artistes, fem servir valors per defecte
+        if not seed_track_ids and not seed_artist_ids:
+            # Aquestes seeds són públiques i segures
+            seed_artist_ids = ['4NHQUGzhtTLFvgF5SZesLK']  # Tove Lo (exemple)
+            seed_track_ids = ['0c6xIDDpzE81m2q797ordA']  # Royals de Lorde (exemple)
+
+        # 🔹 Composar paràmetres segons el que tenim
+        params = {
+            'limit': 10,
+            'market': 'ES',
         }
-    ]
+        if seed_track_ids:
+            params['seed_tracks'] = ",".join(seed_track_ids[:5])
+        if seed_artist_ids:
+            params['seed_artists'] = ",".join(seed_artist_ids[:5])
 
-    return JsonResponse({'recommendations': dummy_recommendations})
+        recs_response = requests.get(
+            "https://api.spotify.com/v1/recommendations",
+            headers=headers,
+            params=params
+        )
+
+        if recs_response.status_code != 200:
+            logging.error(f"Recommendations error: {recs_response.status_code} - {recs_response.text}")
+            return JsonResponse({'recommendations': []})
+
+        recs_data = recs_response.json()
+        tracks = recs_data.get('tracks', [])
+
+        recommendations = [{
+            'name': track['name'],
+            'artist': track['artists'][0]['name'],
+            'image': track['album']['images'][0]['url'] if track['album']['images'] else '',
+        } for track in tracks]
+
+        return JsonResponse({'recommendations': recommendations})
+
+    except Exception as e:
+        logging.exception("Error obtenint recomanacions:")
+        return JsonResponse({'recommendations': []})
