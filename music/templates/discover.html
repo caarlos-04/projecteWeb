@@ -1,12 +1,74 @@
 {% extends 'base.html' %}
-{% block title %}Selecciona una Canción{% endblock %}
+{% load static %}
+{% block title %}Descobreix música nova{% endblock %}
 
 {% block content %}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
-<div class="info-container">
-    <h1>Recommendations based on {{ user.username }}'s likes</h1>
-    <p>Working on it...</p>
-<img src="https://cdn.pixabay.com/photo/2015/11/03/09/10/craftsmen-1020156_960_720.jpg" alt="Working on it" style="display: block; margin: 0 auto;" width="100">
-</div>
+
+    <div class="info-container">
+        <h1>Recomanacions per a {{ user.username }}</h1>
+        <p>Explora noves cançons basades en el teu gust musical</p>
+    </div>
+
+    <div class="song-select-header">
+        <h1>Selecciona un rang de temps</h1>
+        <select id="timeRangeSelect">
+            <option value="">-- Selecciona un rang --</option>
+            <option value="short_term">Últim mes</option>
+            <option value="medium_term">Últims 6 mesos</option>
+            <option value="long_term">Últims anys</option>
+        </select>
+    </div>
+
+    <div id="recommendationContainer">
+        <!-- Recomanacions carregades dinàmicament -->
+    </div>
+
+    <script>
+    document.getElementById('timeRangeSelect').addEventListener('change', function () {
+        const timeRange = this.value;
+
+        if (timeRange) {
+            fetch(`/music/recommendations/?time_range=${timeRange}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('recommendationContainer');
+                    container.innerHTML = '';
+
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        let count = 1;
+                        data.recommendations.forEach(track => {
+                            const div = document.createElement('div');
+                            div.innerHTML = `
+                                <div class="song-card">
+                                    <img src="${track.image}" alt="${track.name}">
+                                    <h3>${count}. ${track.name}</h3>
+                                    <p style="color:#999;">${track.artist}</p>
+                                </div>
+                            `;
+                            container.appendChild(div);
+                            count++;
+                        });
+                    } else {
+                        container.innerHTML = "<p>No s'han trobat recomanacions per aquest període.</p>";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('recommendationContainer').innerHTML = "<p>Error carregant recomanacions.</p>";
+                    console.error("Error:", error);
+                });
+        }
+    });
+    </script>
+
+    <style>
+        #recommendationContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* Hereta els estils de song-card, etc., que ja tens */
+    </style>
 {% endblock %}

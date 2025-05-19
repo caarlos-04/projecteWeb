@@ -46,10 +46,6 @@ def discover_view(request):
     return render(request, 'discover.html')
 
 @login_required
-def top_genres_view(request):
-    return render(request, 'genres.html')
-
-@login_required
 def spotify_login(request):
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
@@ -227,3 +223,26 @@ def spotify_token_required(view_func):
 
         return view_func(request, *args, **kwargs)
     return wrapper
+
+@login_required
+def recommendations(request):
+
+    dummy_recommendations = [
+        {
+            "name": "Cançó Recomanada 1",
+            "artist": "Artista 1",
+            "image": "https://via.placeholder.com/300x300.png?text=1"
+        },
+        {
+            "name": "Cançó Recomanada 2",
+            "artist": "Artista 2",
+            "image": "https://via.placeholder.com/300x300.png?text=2"
+        },
+        {
+            "name": "Cançó Recomanada 3",
+            "artist": "Artista 3",
+            "image": "https://via.placeholder.com/300x300.png?text=3"
+        }
+    ]
+
+    return JsonResponse({'recommendations': dummy_recommendations})
