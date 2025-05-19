@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Descobreix música nova{% endblock %}
+{% block title %}Discover new music{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'music.css' %}?v={{ timestamp }}">
 
 <div class="info-container">
-    <h1>Recomanacions per a {{ user.username }}</h1>
-    <p>Explora noves cançons basades en el teu gust musical</p>
+    <h1>Recommendations for {{ user.username }}</h1>
+    <p>Explore new music based on your taste</p>
 </div>
 
 <div class="song-select-header">
-    <h1>Selecciona un rang de temps</h1>
+    <h1>Selecciona a time range</h1>
     <select id="timeRangeSelect">
-        <option value="short_term">Últim mes</option>
-        <option value="medium_term" selected>Últims 6 mesos</option>
-        <option value="long_term">Últims anys</option>
+        <option value="short_term">Last month</option>
+        <option value="medium_term" selected>Last 6 months</option>
+        <option value="long_term">Last years</option>
     </select>
 </div>
 
@@ -26,7 +26,7 @@
 <script>
 function loadRecommendations(timeRange) {
     const container = document.getElementById('recommendationContainer');
-    container.innerHTML = "<p>Carregant recomanacions...</p>";
+    container.innerHTML = "<p>Loading recommendations...</p>";
 
     fetch(`/music/recommendations/?time_range=${timeRange}`)
         .then(response => {
