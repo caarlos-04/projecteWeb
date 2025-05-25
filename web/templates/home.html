@@ -1,61 +1,62 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome to SpotyStats{% endblock %}
-
 {% block content %}
-<div class="home-container">
-    {% if user.is_authenticated %}
-        <h1>Welcome, {{ user.username }}!</h1>
-        <p>Select an option to get started:</p>
-
-        <div class="menu-options">
-            <a href="{% url 'redirect_music' %}" class="menu-button">My Stats</a>
-            <a href="{% url 'redirect_info' %}" class="menu-button">Information</a>
+{% if user.is_authenticated %}
+    <!-- Banner de conexión Spotify -->
+    {% if not spotify_connected %}
+    <div class="alert alert-info d-flex align-items-center justify-content-between mb-4 hover-card">
+        <div>
+            <i class="bi bi-spotify me-2"></i>
+            <span>Conecta tu cuenta de Spotify para ver tus estadísticas</span>
         </div>
-
+        <a href="{% url 'spotify_login' %}" class="btn btn-spotify">Conectar Spotify</a>
+    </div>
     {% else %}
-        <h1>Welcome to SpotyStats!</h1>
-        <p>Please log in to access our content.</p>
-        <div class="guest-actions">
-            <a href="{% url 'login' %}" class="button">Login</a>
-            <a href="{% url 'register' %}" class="button">Register</a>
+    <!-- Carrusel de artistas (placeholder) -->
+    <div class="mb-5">
+        <h2 class="text-success mb-4">Tus artistas favoritos</h2>
+        <div id="artistCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row">
+                        <!-- Aquí irían los artistas desde la API de Spotify -->
+                        <div class="col-md-4">
+                            <div class="card hover-card">
+                                <img src="https://via.placeholder.com/300" class="card-img-top" alt="Artista">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success">Nombre del Artista</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#artistCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#artistCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
         </div>
+    </div>
     {% endif %}
-</div>
 
-<style>
-.home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 70vh;
-    text-align: center;
-}
-
-.menu-options {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    max-width: 300px;
-    margin-top: 2rem;
-}
-
-.menu-button {
-    display: block;
-    padding: 12px 20px;
-    background-color: #1DB954;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.menu-button:hover {
-    background-color: #17a444;
-}
-</style>
+    <!-- Tarjetas de funcionalidades -->
+    <div class="row g-4 mb-5">
+        <!-- ... (mantener las tarjetas existentes) ... -->
+    </div>
+{% else %}
+    <!-- Contenido para usuarios no autenticados -->
+    <div class="text-center py-5">
+        <i class="bi bi-spotify text-success display-1 mb-4"></i>
+        <h1 class="display-4 fw-bold text-success mb-4">Descubre tus estadísticas de Spotify</h1>
+        <p class="fs-4 text-white-50 mb-5">Conecta tu cuenta de Spotify y descubre insights únicos sobre tu música</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'register' %}" class="btn btn-outline-success btn-lg px-5">Registrarse</a>
+            <a href="{% url 'login' %}" class="btn btn-spotify btn-lg px-5">Iniciar sesión</a>
+        </div>
+    </div>
+{% endif %}
 {% endblock %}

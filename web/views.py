@@ -9,7 +9,10 @@ from .forms import RegisterForm
 # Create your views here.
 
 def home(request):
-    context = {"timestamp": now().timestamp()}
+    context = {
+        "timestamp": now().timestamp(),
+        "spotify_connected": hasattr(request.user, 'social_auth') and request.user.social_auth.filter(provider='spotify').exists() if request.user.is_authenticated else False
+    }
     return render(request, 'home.html', context)
 
 def logout_view(request):
@@ -36,5 +39,23 @@ def base_music_view(request):
 @login_required
 def base_info_view(request):
     return render(request, "info.html")
+
+@login_required(login_url='login')
+def music(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'music/music.html')
+
+@login_required(login_url='login')
+def playlists(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'music/playlists.html')
+
+@login_required(login_url='login')
+def info(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'music/info.html')
 
 

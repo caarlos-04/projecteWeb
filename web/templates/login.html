@@ -1,29 +1,51 @@
 {% extends 'base.html' %}
-
-{% block title %}Login - SpotyStats{% endblock %}
-
 {% block content %}
-<div class="login-container">
-    <h1>Login</h1>
-    <form method="post" class="login-form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        {% if form.errors %}
-            <div class="error-message">
-                Invalid username or password.
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card hover-card p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-music-note-beamed text-success display-1"></i>
+                    <h2 class="text-success fw-bold mt-3">Iniciar Sesión</h2>
+                    <p class="text-white-50">Accede a tu cuenta de SpotyStats</p>
+                </div>
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-white-50">Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-success">
+                                <i class="bi bi-person-fill text-success"></i>
+                            </span>
+                            <input type="text" name="username" class="form-control bg-dark text-white border-success" id="username" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label text-white-50">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-success">
+                                <i class="bi bi-lock-fill text-success"></i>
+                            </span>
+                            <input type="password" name="password" class="form-control bg-dark text-white border-success" id="password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-spotify w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                    </button>
+                    <div class="text-center text-white-50">
+                        ¿No tienes cuenta? <a href="{% url 'register' %}" class="text-success text-decoration-none">Regístrate</a>
+                    </div>
+                </form>
             </div>
-        {% endif %}
-        <button type="submit">Login</button>
-    </form>
-    <div class="auth-prompt">
-        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+        </div>
     </div>
 </div>
-{% endblock %} 
+
+<style>
+.form-control:focus {
+    background-color: #1a1a1a;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(29, 185, 84, 0.25);
+}
+</style>
+{% endblock %}
