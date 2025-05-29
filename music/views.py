@@ -42,14 +42,6 @@ def base_song_selection_view(request):
     return render(request, 'song_selection.html')
 
 @login_required
-def discover_view(request):
-    return render(request, 'discover.html')
-
-@login_required
-def top_genres_view(request):
-    return render(request, 'genres.html')
-
-@login_required
 def spotify_login(request):
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
