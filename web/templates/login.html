@@ -6,13 +6,13 @@
             <div class="card hover-card p-4">
                 <div class="text-center mb-4">
                     <i class="bi bi-music-note-beamed text-success display-1"></i>
-                    <h2 class="text-success fw-bold mt-3">Iniciar Sesión</h2>
-                    <p class="text-white-50">Accede a tu cuenta de SpotyStats</p>
+                    <h2 class="text-success fw-bold mt-3">Log In</h2>
+                    <p class="text-white-50">Access your SpotyStats account</p>
                 </div>
                 <form method="post" class="needs-validation" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="username" class="form-label text-white-50">Usuario</label>
+                        <label for="username" class="form-label text-white-50">User</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-success">
                                 <i class="bi bi-person-fill text-success"></i>
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label text-white-50">Contraseña</label>
+                        <label for="password" class="form-label text-white-50">Password</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-success">
                                 <i class="bi bi-lock-fill text-success"></i>
@@ -30,10 +30,10 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-spotify w-100 mb-3">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Log In
                     </button>
                     <div class="text-center text-white-50">
-                        ¿No tienes cuenta? <a href="{% url 'register' %}" class="text-success text-decoration-none">Regístrate</a>
+                        Don't have an account? <a href="{% url 'register' %}" class="text-success text-decoration-none">Sign Up</a>
                     </div>
                 </form>
             </div>

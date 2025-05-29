@@ -7,14 +7,14 @@
     <div class="alert alert-info d-flex align-items-center justify-content-between mb-4 hover-card">
         <div>
             <i class="bi bi-spotify me-2"></i>
-            <span>Conecta tu cuenta de Spotify para ver tus estadísticas</span>
+            <span>Connect your Spotify account to view your stats</span>
         </div>
-        <a href="{% url 'spotify_login' %}" class="btn btn-spotify">Conectar Spotify</a>
+        <a href="{% url 'spotify_login' %}" class="btn btn-spotify">Connect to Spotify</a>
     </div>
     {% else %}
     <!-- Carrusel de artistas (placeholder) -->
     <div class="mb-5">
-        <h2 class="text-success mb-4">Tus artistas favoritos</h2>
+        <h2 class="text-success mb-4">Your favourite artists</h2>
         <div id="artistCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
@@ -24,7 +24,7 @@
                             <div class="card hover-card">
                                 <img src="https://via.placeholder.com/300" class="card-img-top" alt="Artista">
                                 <div class="card-body">
-                                    <h5 class="card-title text-success">Nombre del Artista</h5>
+                                    <h5 class="card-title text-success">Name of the Artist</h5>
                                 </div>
                             </div>
                         </div>
@@ -33,11 +33,11 @@
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#artistCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
+                <span class="visually-hidden">Previous</span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#artistCarousel" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Siguiente</span>
+                <span class="visually-hidden">Next</span>
             </button>
         </div>
     </div>
@@ -51,11 +51,11 @@
     <!-- Contenido para usuarios no autenticados -->
     <div class="text-center py-5">
         <i class="bi bi-spotify text-success display-1 mb-4"></i>
-        <h1 class="display-4 fw-bold text-success mb-4">Descubre tus estadísticas de Spotify</h1>
-        <p class="fs-4 text-white-50 mb-5">Conecta tu cuenta de Spotify y descubre insights únicos sobre tu música</p>
+        <h1 class="display-4 fw-bold text-success mb-4">Discover your Spotify statistics</h1>
+        <p class="fs-4 text-white-50 mb-5">Connect your Spotify account and discover unique insights about the music you listen to</p>
         <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'register' %}" class="btn btn-outline-success btn-lg px-5">Registrarse</a>
-            <a href="{% url 'login' %}" class="btn btn-spotify btn-lg px-5">Iniciar sesión</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-success btn-lg px-5">Sign Up</a>
+            <a href="{% url 'login' %}" class="btn btn-spotify btn-lg px-5">Log In</a>
         </div>
     </div>
 {% endif %}

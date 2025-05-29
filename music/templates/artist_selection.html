@@ -96,7 +96,7 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
 }
 
 .artist-select-header {
@@ -191,6 +191,7 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 2rem;
     transition: opacity 0.3s ease;
+    padding-bottom: 3rem;
 }
 
 .fade-out {
@@ -204,21 +205,23 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
 }
 
 .artist-card {
-    background: linear-gradient(145deg, #222222 0%, #181818 100%);
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
     border-radius: 16px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     height: 100%;
     display: flex;
     flex-direction: column;
     max-height: 350px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .artist-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+    border-color: rgba(29, 185, 84, 0.3);
 }
 
 .artist-card:hover::after {
@@ -233,7 +236,7 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     right: 0;
     bottom: 0;
     border-radius: 16px;
-    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.4);
+    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.5);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -287,6 +290,8 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background-color: #121212;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .artist-info h3 {
@@ -295,6 +300,7 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     font-weight: 700;
     margin: 0;
     line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .loading-spinner {
@@ -326,13 +332,15 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
     grid-column: 1 / -1;
     text-align: center;
     padding: 3rem;
-    background-color: #181818;
+    background-color: #121212;
     border-radius: 12px;
     border: 1px solid #333;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .no-artists p, .error-message p {
-    color: #b3b3b3;
+    color: #e0e0e0;
     font-size: 1.2rem;
 }
 
@@ -395,5 +403,38 @@ document.getElementById('timeRangeSelect').addEventListener('change', function (
         width: 100%;
     }
 }
+
+/* Traducción de los mensajes de error a inglés */
+{% block javascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Actualizar los textos de error en inglés si están presentes
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeRangeSelect = document.getElementById('timeRangeSelect');
+            if (timeRangeSelect) {
+                timeRangeSelect.addEventListener('change', function() {
+                    // Modificar los textos de error cuando se actualizan los datos
+                    setTimeout(() => {
+                        if (document.querySelector('.no-artists p')) {
+                            document.querySelector('.no-artists p').textContent = "No artists found";
+                        }
+                        if (document.querySelector('.error-message p')) {
+                            document.querySelector('.error-message p').textContent = "Error loading artists";
+                        }
+                    }, 500);
+                });
+            }
+            
+            // También cambiar los textos iniciales si están presentes
+            if (document.querySelector('.no-artists p')) {
+                document.querySelector('.no-artists p').textContent = "No artists found";
+            }
+            if (document.querySelector('.error-message p')) {
+                document.querySelector('.error-message p').textContent = "Error loading artists";
+            }
+        });
+    });
+</script>
+{% endblock %}
 </style>
 {% endblock %}

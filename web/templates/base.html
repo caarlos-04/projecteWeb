@@ -98,31 +98,31 @@
                 <i class="bi bi-spotify fs-2 text-success me-2"></i>
                 <span class="fs-4 fw-bold text-success">SpotyStats</span>
             </div>
-            <a href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Inicio</a>
+            <a href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Home</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'music' %}"><i class="bi bi-music-note-beamed me-2"></i>Música</a>
+                <a href="{% url 'music' %}"><i class="bi bi-music-note-beamed me-2"></i>Music</a>
                 <a href="{% url 'playlists' %}"><i class="bi bi-collection-play me-2"></i>Playlists</a>
                 <a href="{% url 'info' %}"><i class="bi bi-info-circle me-2"></i>Info</a>
             {% endif %}
             <hr class="bg-secondary">
-            <a href="{% url 'about_us' %}"><i class="bi bi-people me-2"></i>Sobre nosotros</a>
+            <a href="{% url 'about_us' %}"><i class="bi bi-people me-2"></i>About Us</a>
         </div>
 
         <div class="main-content w-100">
             <div class="d-flex justify-content-end mb-4">
                 {% if user.is_authenticated %}
-                    <span class="me-3 align-self-center">Hola, {{ user.username }}</span>
-                    <a href="{% url 'logout' %}" class="btn btn-spotify">Cerrar sesión</a>
+                    <span class="me-3 align-self-center">Hi, {{ user.username }}</span>
+                    <a href="{% url 'logout' %}" class="btn btn-spotify">Log Out</a>
                 {% else %}
-                    <a href="{% url 'register' %}" class="btn btn-outline-success me-2">Registrarse</a>
-                    <a href="{% url 'login' %}" class="btn btn-spotify">Iniciar sesión</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-success me-2">Sign Up</a>
+                    <a href="{% url 'login' %}" class="btn btn-spotify">Log In</a>
                 {% endif %}
             </div>
             {% block content %}{% endblock %}
         </div>
     </div>
     <footer>
-        <p class="mb-0">© 2024 SpotyStats | Desarrollado con <i class="bi bi-heart-fill text-danger"></i></p>
+        <p class="mb-0">© 2025 SpotyStats | Developed with <i class="bi bi-heart-fill text-danger"></i></p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

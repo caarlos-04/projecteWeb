@@ -2,57 +2,84 @@
 
 {% block content %}
 <div class="info-container">
-    <h1 class="info-title">Search an Artist</h1>
-
-    <form method="get" action="{% url 'artist_search' %}" class="search-form">
-        <input type="text" name="artist" placeholder="Artist name" required>
-        <button type="submit">Search</button>
-    </form>
+    <div class="artist-search-header">
+        <h1 class="info-title">Search an Artist</h1>
+        
+        <form method="get" action="{% url 'artist_search' %}" class="search-form">
+            <div class="search-input-container">
+                <input type="text" name="artist" placeholder="Artist name" required>
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
 
     {% if artist %}
-        <h2>{{ artist.name }}'s Albums</h2>
-        <img src="{{ artist.image }}" width="200">
-
-        {% for album in albums %}
-            <div class="album">
-                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="toggleTracks('{{ album.id }}')">
-                    <img src="{{ album.image }}" width="150">
-                    <h3>{{ album.title }}</h3>
-                    <span style="font-size: 24px;">&#x25BC;</span>
-                </div>
-
-                <ul id="tracks-{{ album.id }}" class="track-list" style="display: none; margin-top: 10px;">
-                    {% for track in album.tracks %}
-                        <li style="display: flex; align-items: center; gap: 10px;">
-                            {{ track.title }}
-                            <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track">
-                                {% csrf_token %}
-                                <input type="hidden" name="track_title" value="{{ track.title }}">
-                                <input type="hidden" name="album_title" value="{{ album.title }}">
-                                <input type="hidden" name="artist_name" value="{{ artist.name }}">
-                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-
-                                <select name="playlist_id">
-                                    <option value="">New playlist</option>
-                                    {% for pl in playlists %}
-                                        <option value="{{ pl.id }}">{{ pl.title }}</option>
-                                    {% endfor %}
-                                </select>
-                                <input type="text" name="new_playlist_title" placeholder="New playlist name">
-                                <button type="submit">+</button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+        <div class="artist-profile">
+            <div class="artist-header">
+                <img src="{{ artist.image }}" alt="{{ artist.name }}" class="artist-image">
+                <h2 class="artist-name">{{ artist.name }}'s Albums</h2>
             </div>
-        {% endfor %}
+            
+            <div class="albums-grid">
+                {% for album in albums %}
+                    <div class="album-card">
+                        <div class="album-header" onclick="toggleTracks('{{ album.id }}')">
+                            <div class="album-image-container">
+                                <img src="{{ album.image }}" alt="{{ album.title }}">
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">{{ album.title }}</h3>
+                                <div class="toggle-icon">&#x25BC;</div>
+                            </div>
+                        </div>
+
+                        <ul id="tracks-{{ album.id }}" class="track-list" style="display: none;">
+                            {% for track in album.tracks %}
+                                <li class="track-item">
+                                    <span class="track-title">{{ track.title }}</span>
+                                    <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="track_title" value="{{ track.title }}">
+                                        <input type="hidden" name="album_title" value="{{ album.title }}">
+                                        <input type="hidden" name="artist_name" value="{{ artist.name }}">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                                        <div class="track-controls">
+                                            <select name="playlist_id" class="playlist-select">
+                                                <option value="">New playlist</option>
+                                                {% for pl in playlists %}
+                                                    <option value="{{ pl.id }}">{{ pl.title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <input type="text" name="new_playlist_title" placeholder="New playlist name" class="playlist-name-input">
+                                            <button type="submit" class="add-track-btn">+</button>
+                                        </div>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     {% endif %}
 </div>
 
 <script>
 function toggleTracks(id) {
     const list = document.getElementById(`tracks-${id}`);
-    list.style.display = list.style.display === 'none' ? 'block' : 'none';
+    const albumCard = list.closest('.album-card');
+    const toggleIcon = albumCard.querySelector('.toggle-icon');
+    
+    if (list.style.display === 'none') {
+        list.style.display = 'block';
+        toggleIcon.innerHTML = '&#x25B2;'; // Flecha hacia arriba
+        albumCard.classList.add('expanded');
+    } else {
+        list.style.display = 'none';
+        toggleIcon.innerHTML = '&#x25BC;'; // Flecha hacia abajo
+        albumCard.classList.remove('expanded');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -73,7 +100,21 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('✅ ' + data.message);
+                    const notification = document.createElement('div');
+                    notification.className = 'success-notification';
+                    notification.textContent = data.message;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 3000);
                 } else {
                     alert('Something went wrong');
                 }
@@ -86,4 +127,373 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+<style>
+.info-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-bottom: 4rem;
+}
+
+.artist-search-header {
+    background: linear-gradient(135deg, #2D2D2D 0%, #1A1A1A 100%);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-search-header::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(30, 215, 96, 0.05) 100%);
+    filter: blur(20px);
+    z-index: 0;
+}
+
+.info-title {
+    color: #FFFFFF;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.search-form {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input-container {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px 0 0 50px;
+    border: 2px solid rgba(29, 185, 84, 0.4);
+    border-right: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: #1DB954;
+    box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.3);
+}
+
+.search-form button {
+    padding: 0.8rem 1.5rem;
+    border-radius: 0 50px 50px 0;
+    border: 2px solid rgba(29, 185, 84, 0.4);
+    border-left: none;
+    background-color: #1DB954;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.search-form button:hover {
+    background-color: #1ed760;
+    transform: translateY(-2px);
+}
+
+.artist-profile {
+    margin-top: 3rem;
+}
+
+.artist-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.artist-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 3px solid rgba(29, 185, 84, 0.7);
+}
+
+.artist-name {
+    color: #FFFFFF;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.albums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.album-card {
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.album-card.expanded {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    transform: translateY(-5px);
+    border-color: rgba(29, 185, 84, 0.3);
+}
+
+.album-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.album-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.album-image-container {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.album-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.album-header:hover .album-image-container img {
+    transform: scale(1.08);
+}
+
+.album-info {
+    margin-left: 1rem;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.album-title {
+    color: #FFFFFF;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.toggle-icon {
+    color: #1DB954;
+    font-size: 1.2rem;
+    margin-left: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.track-list {
+    background-color: #121212;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.track-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.track-item:last-child {
+    border-bottom: none;
+}
+
+.track-title {
+    color: #FFFFFF;
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+.track-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.playlist-select {
+    flex: 2;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 0.9rem;
+    appearance: none;
+    transition: all 0.3s ease;
+}
+
+.playlist-select:focus {
+    border-color: #1DB954;
+    outline: none;
+}
+
+.playlist-name-input {
+    flex: 3;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.playlist-name-input:focus {
+    border-color: #1DB954;
+    outline: none;
+}
+
+.add-track-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: #1DB954;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.add-track-btn:hover {
+    background-color: #1ed760;
+    transform: scale(1.1);
+}
+
+.success-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #1DB954;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+
+.success-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .artist-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .artist-image {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .albums-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .album-header {
+        padding: 0.8rem;
+    }
+    
+    .track-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .add-track-btn {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-title {
+        font-size: 1.8rem;
+    }
+    
+    .search-input-container {
+        flex-direction: column;
+    }
+    
+    .search-form input {
+        border-radius: 50px;
+        border-right: 2px solid rgba(29, 185, 84, 0.4);
+        margin-bottom: 0.5rem;
+    }
+    
+    .search-form button {
+        border-radius: 50px;
+        border-left: 2px solid rgba(29, 185, 84, 0.4);
+    }
+    
+    .artist-name {
+        font-size: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
