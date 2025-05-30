@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 {% if user.is_authenticated %}
-    <!-- Banner de conexión Spotify -->
     {% if not spotify_connected %}
-    <div class="alert alert-info spotify-connect-card mb-4">
+    <div class="spotify-connect-card">
         <div>
             <i class="bi bi-spotify me-2"></i>
             <span>Connect your Spotify account to view your stats</span>
@@ -12,19 +12,17 @@
         <a href="{% url 'spotify_login' %}" class="btn-spotify">Connect to Spotify</a>
     </div>
     {% else %}
-    <!-- Carrusel de artistas (placeholder) -->
     <div class="mb-5">
-        <h2 class="text-success mb-4">Your favourite artists</h2>
+        <h2 class="text-success mb-4">Your Favorite Artists</h2>
         <div id="artistCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <div class="row">
-                        <!-- Aquí irían los artistas desde la API de Spotify -->
                         <div class="col-md-4">
                             <div class="artist-home-card">
-                                <img src="https://via.placeholder.com/300" class="card-img-top" alt="Artista">
+                                <img src="https://via.placeholder.com/300" class="card-img-top" alt="Artist">
                                 <div class="card-body">
-                                    <h5 class="card-title">Name of the Artist</h5>
+                                    <h5 class="card-title">Artist Name</h5>
                                 </div>
                             </div>
                         </div>
@@ -42,161 +40,15 @@
         </div>
     </div>
     {% endif %}
-
-    <!-- Tarjetas de funcionalidades -->
-    <div class="row g-4 mb-5">
-        <!-- ... (mantener las tarjetas existentes) ... -->
-    </div>
 {% else %}
-    <!-- Contenido para usuarios no autenticados -->
     <div class="text-center py-5">
         <i class="bi bi-spotify text-success display-1 mb-4"></i>
-        <h1 class="display-4 fw-bold text-success mb-4">Discover your Spotify statistics</h1>
-        <p class="fs-4 text-white-50 mb-5">Connect your Spotify account and discover unique insights about the music you listen to</p>
+        <h1 class="display-4 fw-bold text-success mb-4">Discover Your Spotify Statistics</h1>
+        <p class="fs-4 text-white-50 mb-5">Connect your Spotify account and discover unique insights about your music</p>
         <div class="d-flex justify-content-center gap-3">
             <a href="{% url 'register' %}" class="auth-btn btn-outline">Sign Up</a>
             <a href="{% url 'login' %}" class="auth-btn btn-spotify-auth">Log In</a>
         </div>
     </div>
 {% endif %}
-
-<style>
-/* Estilos para las tarjetas y efectos hover consistentes con el resto del sitio */
-.spotify-connect-card {
-    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
-    border-radius: 16px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    color: #FFFFFF;
-    margin: 1.5rem auto;
-    max-width: 1200px;
-}
-
-.spotify-connect-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    border-color: rgba(29, 185, 84, 0.3);
-}
-
-.btn-spotify {
-    padding: 0.8rem 1.5rem;
-    background-color: #1DB954;
-    color: white;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    display: inline-block;
-}
-
-.btn-spotify:hover {
-    background-color: #1ed760;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-}
-
-.artist-home-card {
-    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.artist-home-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
-    border-color: rgba(29, 185, 84, 0.3);
-}
-
-.artist-home-card .card-body {
-    padding: 1.2rem;
-    text-align: center;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background-color: #121212;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.artist-home-card .card-title {
-    color: #FFFFFF;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.4;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.artist-home-card img {
-    transition: transform 0.5s ease;
-    width: 100%;
-    height: auto;
-}
-
-.artist-home-card:hover img {
-    transform: scale(1.08);
-}
-
-.auth-btn {
-    padding: 0.8rem 2.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: #1DB954;
-    border: 2px solid #1DB954;
-}
-
-.btn-outline:hover {
-    background-color: rgba(29, 185, 84, 0.1);
-    transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    color: #1ed760;
-    border-color: #1ed760;
-}
-
-.btn-spotify-auth {
-    background-color: #1DB954;
-    color: white;
-    border: none;
-}
-
-.btn-spotify-auth:hover {
-    background-color: #1ed760;
-    transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(29, 185, 84, 0.3);
-}
-
-@media (max-width: 768px) {
-    .spotify-connect-card {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .auth-btn {
-        padding: 0.7rem 2rem;
-        font-size: 1rem;
-    }
-}
-</style>
 {% endblock %}

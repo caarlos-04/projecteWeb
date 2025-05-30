@@ -141,20 +141,39 @@ def check_artist_songs_left(artist):
 def check_track_in_other_playlists(track, current_playlist):
     return Playlist.objects.filter(tracks=track).exclude(id=current_playlist.id).exists()
 
+
 @require_POST
 def remove_track_from_playlist(request, playlist_id, track_id):
-    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
-    track = get_object_or_404(Track, id=track_id)
+    try:
+        playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+        track = get_object_or_404(Track, id=track_id)
 
-    playlist.tracks.remove(track)
+        # Store references before deletion
+        album = track.album if hasattr(track, 'album') else None
+        artist = track.artist if hasattr(track, 'artist') else None
 
-    if not check_track_in_other_playlists(track, playlist):
-        if not check_artist_songs_left(track.artist):
-            track.artist.delete()
-        if not check_album_songs_left(track.album):
-            track.album.delete()
-        track.delete()
-    return redirect('user_playlists')
+        # Remove track from playlist
+        playlist.tracks.remove(track)
+
+        # Check if track exists in other playlists
+        if not check_track_in_other_playlists(track, playlist):
+            # Delete track first to avoid foreign key issues
+            track.delete()
+
+            # If artist exists and has no more songs, delete it
+            if artist and not check_artist_songs_left(artist):
+                artist.delete()
+
+            # If album exists and has no more songs, delete it
+            if album and not check_album_songs_left(album):
+                album.delete()
+
+        return redirect('user_playlists')
+
+    except Exception as e:
+        # Log the error and redirect
+        print(f"Error removing track: {str(e)}")
+        return redirect('user_playlists')
 
 @login_required
 def top_songs_artist(request):

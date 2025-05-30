@@ -31,7 +31,7 @@
                                         </div>
                                         <span class="track-artist">{{ track.album.artist.name }}</span>
                                     </div>
-                                    <form method="post" action="{% url 'remove_track_from_playlist' playlist.id track.id %}" class="remove-track-form">
+                                    <form method="post" action="{% url 'remove_track_from_playlist' playlist.id track.id %}" class="d-inline">
                                         {% csrf_token %}
                                         <button type="submit" class="remove-track-btn" title="Remove from playlist">
                                             <span class="remove-icon">❌</span>
