@@ -38,7 +38,7 @@
                                     <option value="{{ pl.id }}">{{ pl.title }}</option>
                                 {% endfor %}
                             </select>
-                            <input type="text" name="new_playlist_title" required placeholder="New playlist name" class="playlist-input">
+                            <input type="text" name="new_playlist_title" placeholder="New playlist name" class="playlist-input">
                             <button type="submit" class="menu-button save-btn">Save</button>
                         </form>
                     </li>
@@ -202,8 +202,37 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.ajax-save-track').forEach(form => {
+        const playlistSelect = form.querySelector('.playlist-select');
+        const newPlaylistInput = form.querySelector('.playlist-input');
+        
+        // Función para controlar la visibilidad y el atributo required
+        function toggleNewPlaylistInput() {
+            if (playlistSelect.value === '') {
+                // Si se selecciona "Create new", mostrar y hacer requerido el campo
+                newPlaylistInput.style.display = 'inline-block';
+                newPlaylistInput.setAttribute('required', 'required');
+            } else {
+                // Si se selecciona una playlist existente, ocultar y quitar required
+                newPlaylistInput.style.display = 'none';
+                newPlaylistInput.removeAttribute('required');
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        toggleNewPlaylistInput();
+        
+        // Ejecutar cuando cambie la selección
+        playlistSelect.addEventListener('change', toggleNewPlaylistInput);
+        
+        // Manejo del envío del formulario
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            
+            // Validación adicional
+            if (playlistSelect.value === '' && !newPlaylistInput.value.trim()) {
+                alert('Please enter a name for the new playlist');
+                return;
+            }
 
             const formData = new FormData(form);
             const csrfToken = form.querySelector('input[name=csrfmiddlewaretoken]').value;
