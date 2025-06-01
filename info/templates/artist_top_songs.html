@@ -2,40 +2,44 @@
 
 {% block content %}
 <div class="info-container">
-    <h1 class="info-title">Top Tracks from:</h1>
+    <div class="info-header">
+        <h1>Top Tracks from Artists</h1>
+        <p class="subtitle">Search for an artist and save their top songs to your playlists</p>
+    </div>
 
     <form method="get" action="{% url 'top_songs_search' %}" class="search-form">
         <input type="text" name="artist" placeholder="Artist name" required>
-        <button type="submit">Search</button>
+        <button type="submit" class="menu-button search-btn">Search</button>
     </form>
 
     {% if artist %}
-        <h2>{{ artist.name }}</h2>
-        {% if artist.image %}
-            <img src="{{ artist.image }}" alt="{{ artist.name }}" width="200">
-        {% endif %}
-
+        <div class="artist-section">
+            <h2>{{ artist.name }}</h2>
+            {% if artist.image %}
+                <img src="{{ artist.image }}" alt="{{ artist.name }}" width="200" class="artist-img">
+            {% endif %}
+        </div>
         {% if songs %}
-            <h3 style="margin-top: 20px;">Most popular songs</h3>
-            <ul>
+            <h3 class="songs-title">Most popular songs</h3>
+            <ul class="songs-list">
                 {% for track in songs %}
-                    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        {{ track.title }}
-                        <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track">
+                    <li class="song-item">
+                        <span class="song-title">{{ track.title }}</span>
+                        <form method="post" action="{% url 'save_track_to_playlist' %}" class="ajax-save-track save-form">
                             {% csrf_token %}
                             <input type="hidden" name="track_title" value="{{ track.title }}">
                             <input type="hidden" name="album_title" value="{{ track.album }}">
                             <input type="hidden" name="artist_name" value="{{ artist.name }}">
                             <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-                            <select name="playlist_id">
+                            <select name="playlist_id" class="playlist-select">
                                 <option value="">Create new</option>
                                 {% for pl in playlists %}
                                     <option value="{{ pl.id }}">{{ pl.title }}</option>
                                 {% endfor %}
                             </select>
-                            <input type="text" name="new_playlist_title" required placeholder="New playlist name">
-                            <button type="submit">Save</button>
+                            <input type="text" name="new_playlist_title" placeholder="New playlist name" class="playlist-input">
+                            <button type="submit" class="menu-button save-btn">Save</button>
                         </form>
                     </li>
                 {% endfor %}
@@ -46,11 +50,189 @@
     {% endif %}
 </div>
 
+<style>
+.info-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-bottom: 4rem;
+}
+.info-header {
+    background: linear-gradient(135deg, #2D2D2D 0%, #1A1A1A 100%);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.info-header::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(30, 215, 96, 0.05) 100%);
+    filter: blur(20px);
+    z-index: 0;
+}
+.info-header h1 {
+    color: #FFFFFF;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.subtitle {
+    color: #B3B3B3;
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 1;
+}
+.search-form {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.search-form input[type="text"] {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #232323;
+    color: #fff;
+    font-size: 1rem;
+    width: 250px;
+}
+.search-btn {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.search-btn:hover {
+    background: linear-gradient(145deg, #1db954 0%, #1ed760 100%);
+    color: #232323;
+}
+.artist-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.artist-img {
+    border-radius: 12px;
+    margin-top: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.songs-title {
+    margin-top: 2rem;
+    font-size: 1.3rem;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+}
+.songs-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem auto 0 auto;
+    max-width: 700px;
+}
+.song-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(145deg, #232323 0%, #181818 100%);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.song-title {
+    flex: 1;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.save-form {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+.playlist-select, .playlist-input {
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #232323;
+    color: #fff;
+    font-size: 1rem;
+}
+.save-btn {
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.save-btn:hover {
+    background: linear-gradient(145deg, #1db954 0%, #1ed760 100%);
+    color: #232323;
+}
+@media (max-width: 768px) {
+    .info-header h1 { font-size: 2rem; }
+    .search-form input[type="text"] { width: 150px; }
+    .song-item { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+}
+@media (max-width: 480px) {
+    .info-header h1 { font-size: 1.5rem; }
+    .subtitle { font-size: 1rem; }
+    .songs-list { padding: 0 0.5rem; }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.ajax-save-track').forEach(form => {
+        const playlistSelect = form.querySelector('.playlist-select');
+        const newPlaylistInput = form.querySelector('.playlist-input');
+        
+        // Función para controlar la visibilidad y el atributo required
+        function toggleNewPlaylistInput() {
+            if (playlistSelect.value === '') {
+                // Si se selecciona "Create new", mostrar y hacer requerido el campo
+                newPlaylistInput.style.display = 'inline-block';
+                newPlaylistInput.setAttribute('required', 'required');
+            } else {
+                // Si se selecciona una playlist existente, ocultar y quitar required
+                newPlaylistInput.style.display = 'none';
+                newPlaylistInput.removeAttribute('required');
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        toggleNewPlaylistInput();
+        
+        // Ejecutar cuando cambie la selección
+        playlistSelect.addEventListener('change', toggleNewPlaylistInput);
+        
+        // Manejo del envío del formulario
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            
+            // Validación adicional
+            if (playlistSelect.value === '' && !newPlaylistInput.value.trim()) {
+                alert('Please enter a name for the new playlist');
+                return;
+            }
 
             const formData = new FormData(form);
             const csrfToken = form.querySelector('input[name=csrfmiddlewaretoken]').value;

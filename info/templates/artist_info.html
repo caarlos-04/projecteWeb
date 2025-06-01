@@ -72,13 +72,20 @@ function toggleTracks(id) {
     const toggleIcon = albumCard.querySelector('.toggle-icon');
     
     if (list.style.display === 'none') {
-        list.style.display = 'block';
-        toggleIcon.innerHTML = '&#x25B2;'; // Flecha hacia arriba
+        // Primero añadimos la clase expanded para mejor apariencia
         albumCard.classList.add('expanded');
+        // Después de un pequeño retraso mostramos la lista para una transición más suave
+        setTimeout(() => {
+            list.style.display = 'block';
+            toggleIcon.innerHTML = '&#x25B2;'; // Flecha hacia arriba
+        }, 50);
     } else {
         list.style.display = 'none';
         toggleIcon.innerHTML = '&#x25BC;'; // Flecha hacia abajo
-        albumCard.classList.remove('expanded');
+        // Esperamos a que termine la animación de cierre antes de quitar la clase
+        setTimeout(() => {
+            albumCard.classList.remove('expanded');
+        }, 50);
     }
 }
 
@@ -104,11 +111,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     notification.className = 'success-notification';
                     notification.textContent = data.message;
                     document.body.appendChild(notification);
-                    
+
                     setTimeout(() => {
                         notification.classList.add('show');
                     }, 10);
-                    
+
                     setTimeout(() => {
                         notification.classList.remove('show');
                         setTimeout(() => {
@@ -261,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function () {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
+    grid-auto-rows: min-content; /* Hace que cada fila tenga altura mínima necesaria */
+    align-items: start; /* Alinea los elementos al inicio de la celda */
 }
 
 .album-card {
@@ -271,9 +280,13 @@ document.addEventListener('DOMContentLoaded', function () {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    height: fit-content; /* La altura se ajusta al contenido */
+    display: flex;
+    flex-direction: column;
 }
 
 .album-card.expanded {
+    z-index: 10; /* Asegura que la tarjeta expandida esté por encima de las demás */
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
     transform: translateY(-5px);
     border-color: rgba(29, 185, 84, 0.3);
@@ -341,6 +354,26 @@ document.addEventListener('DOMContentLoaded', function () {
     padding: 0;
     list-style-type: none;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    max-height: 300px; /* Altura máxima para la lista de canciones */
+    overflow-y: auto; /* Permite desplazamiento vertical */
+}
+
+/* Añadimos estilo para la barra de desplazamiento */
+.track-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.track-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.track-list::-webkit-scrollbar-thumb {
+    background: rgba(29, 185, 84, 0.5);
+    border-radius: 3px;
+}
+
+.track-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(29, 185, 84, 0.7);
 }
 
 .track-item {
@@ -373,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
     padding: 0.6rem 1rem;
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgb(32, 32, 32);
     color: #fff;
     font-size: 0.9rem;
     appearance: none;
