@@ -13,6 +13,8 @@ urlpatterns = [
     path('music/', views.base_music_view, name='music'),
     path('info/', views.base_info_view, name='info'),
     path('playlists/', info_views.user_playlists_view, name='playlists'),
+
+
     path('music-info/', info_views.artist_info_view, name='music_info'),
     path('top-songs/', info_views.top_songs_artist, name='top_songs'),
     path('spotify/login/', info_views.redirect_info, name='spotify_login'),

@@ -213,3 +213,315 @@ footer {
     margin: 0 auto;
     padding: 20px;
 }
+
+
+/* Home page additions */
+.spotify-connect-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(24, 24, 24, 0.9);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.artist-home-card {
+    background: #181818;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.artist-home-card:hover {
+    transform: translateY(-5px);
+}
+
+.artist-home-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.artist-home-card .card-body {
+    padding: 1rem;
+}
+
+.artist-home-card h5 {
+    color: #1DB954;
+    margin: 0;
+}
+
+/* Authentication buttons */
+.auth-btn {
+    padding: 0.8rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #1DB954;
+    border: 2px solid #1DB954;
+}
+
+.btn-outline:hover {
+    background-color: rgba(29, 185, 84, 0.1);
+    color: #1ed760;
+    border-color: #1ed760;
+}
+
+.btn-spotify-auth {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+}
+
+.btn-spotify-auth:hover {
+    background-color: #1ed760;
+}
+
+/* Carousel customization */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(29, 185, 84, 0.5);
+    border-radius: 50%;
+    padding: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .spotify-connect-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .auth-btn {
+        padding: 0.7rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background-color: #000000;
+    padding: 2rem 1rem;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: #b3b3b3;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar hr {
+    border-color: #282828;
+    margin: 1rem 0;
+}
+
+/* Main content area */
+.main-content {
+    margin-left: 250px;
+    padding: 2rem;
+    min-height: 100vh;
+    background-color: #121212;
+}
+
+/* Spotify button styles */
+.btn-spotify {
+    background-color: #1DB954;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    border: none;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-spotify:hover {
+    background-color: #1ed760;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* User info in header */
+.main-content .d-flex span {
+    color: #b3b3b3;
+}
+
+/* Footer adjustments */
+footer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: calc(100% - 250px);
+    background-color: #181818;
+    padding: 1rem;
+    text-align: center;
+    z-index: 1000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    footer {
+        width: 100%;
+    }
+}
+
+/* Logo styles */
+.fs-2.text-success {
+    color: #1DB954 !important;
+}
+
+.fs-4.fw-bold.text-success {
+    color: #1DB954 !important;
+}
+
+/* Login and Register forms */
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background-color: #181818;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h1 {
+    margin-bottom: 2rem;
+    color: #1DB954;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.login-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #b3b3b3;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #282828;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #1DB954;
+    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+.login-form button {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: #1DB954;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.login-form button:hover {
+    background-color: #1ed760;
+    transform: translateY(-2px);
+}
+
+.login-form .text-center {
+    margin-top: 1.5rem;
+    color: #b3b3b3;
+}
+
+.login-form .text-center a {
+    color: #1DB954;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-form .text-center a:hover {
+    color: #1ed760;
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #ff4d4d;
+    background-color: rgba(255, 77, 77, 0.1);
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Card styles for login/register */
+.hover-card {
+    background-color: #181818;
+    border: 1px solid #282828;
+    transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Button spotify style */
+.btn-spotify {
+    background-color: #1DB954;
+    color: white;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-spotify:hover {
+    background-color: #1ed760;
+    transform: scale(1.02);
+}

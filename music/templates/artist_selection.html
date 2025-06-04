@@ -1,127 +1,440 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Selecciona un rang de temps</h1>
 
-<div class="artist-select-header">
-    <h1>Selecciona un rang de temps</h1>
-    <select id="timeRangeSelect">
-        <option value="">-- Selecciona un rang --</option>
-        <option value="short_term">Últim mes</option>
-        <option value="medium_term">Últims 6 meses</option>
-        <option value="long_term">Últims anys</option>
-    </select>
-</div>
+<div class="artist-select-container">
+    <div class="artist-select-header">
+        <h1>Your favourite artists</h1>
+        <div class="time-selector">
+            <span class="selector-label">Time range:</span>
+            <select id="timeRangeSelect">
+                <option value="short_term">Last month</option>
+                <option value="medium_term">Last 6 months</option>
+                <option value="long_term">All time</option>
+            </select>
+        </div>
+    </div>
 
-<div id="artistsContainer">
-    <!-- Artists container -->
+    <div id="loadingIndicator" class="loading-spinner" style="display:none;">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading your favourite artists</p>
+    </div>
+
+    <div id="artistsContainer" class="grid-container">
+        <!-- Artists container -->
+    </div>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('timeRangeSelect').dispatchEvent(new Event('change'));
+});
+
 document.getElementById('timeRangeSelect').addEventListener('change', function () {
     const timeRange = this.value;
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const artistsContainer = document.getElementById('artistsContainer');
 
     if (timeRange) {
+        artistsContainer.classList.add('fade-out');
+
+        // Simbol carregant
+        loadingIndicator.style.display = 'flex';
+
         fetch(`/music/top-artists/?time_range=${timeRange}`)
             .then(response => response.json())
             .then(data => {
-                const container = document.getElementById('artistsContainer');
-                container.innerHTML = '';
+
+                loadingIndicator.style.display = 'none';
+
+                artistsContainer.innerHTML = '';
 
                 if (data.artists && data.artists.length > 0) {
                     let count = 1;
                     data.artists.forEach(artist => {
                         const div = document.createElement('div');
+                        div.className = 'artist-item';
                         div.innerHTML = `
-                                <div class="artist-card">
-                                    <img src="${artist.image}" alt="${artist.name}">
-                                    <h3>${count}. ${artist.name}</h3>
+                            <div class="artist-card">
+                                <div class="artist-rank">${count}</div>
+                                <div class="artist-image-container">
+                                    <img src="${artist.image}" alt="${artist.name}" loading="lazy">
                                 </div>
+                                <div class="artist-info">
+                                    <h3>${artist.name}</h3>
+                                </div>
+                            </div>
                         `;
-                        container.appendChild(div);
+                        artistsContainer.appendChild(div);
                         count++;
                     });
+
+                    // Remove fade-out and add fade-in to show the new content
+                    artistsContainer.classList.remove('fade-out');
+                    artistsContainer.classList.add('fade-in');
+
+                    // Remove the fade-in class after animation completes
+                    setTimeout(() => {
+                        artistsContainer.classList.remove('fade-in');
+                    }, 500);
+
                 } else {
-                    container.innerHTML = "<p>No s'han pogut trobar artistes<p>";
+                    artistsContainer.innerHTML = "<div class='no-artists'><p>No s'han pogut trobar artistes</p></div>";
+                    artistsContainer.classList.remove('fade-out');
                 }
+            })
+            .catch(error => {
+                loadingIndicator.style.display = 'none';
+                artistsContainer.innerHTML = "<div class='error-message'><p>Hi ha hagut un error carregant els artistes</p></div>";
+                artistsContainer.classList.remove('fade-out');
+                console.error('Error:', error);
             });
     }
 });
 </script>
-    <style>
-    .artist-select-header h1 {
-    color: #1DB954;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
+<style>
+.artist-select-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-bottom: 4rem;
 }
 
-    .artist-select-header {
-    background-color: #181818;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+.artist-select-header {
+    background: linear-gradient(135deg, #2D2D2D 0%, #1A1A1A 100%);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-select-header::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(30, 215, 96, 0.05) 100%);
+    filter: blur(20px);
+    z-index: 0;
 }
 
 .artist-select-header h1 {
-    color: #1DB954;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
+    color: #FFFFFF;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.artist-select-header select {
-    padding: 0.6rem 1rem;
-    border-radius: 4px;
-    border: 1px solid #333;
-    background-color: #222;
+.time-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.selector-label {
+    color: #B3B3B3;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.time-selector select {
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    border: 2px solid rgba(29, 185, 84, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
     color: #fff;
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: border 0.3s ease;
+    transition: all 0.3s ease;
+    appearance: none;
+    position: relative;
+    padding-right: 3rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.artist-select-header select:focus {
+.time-selector select:hover {
+    border-color: #1DB954;
+    background-color: rgb(40, 44, 52);
+    color: #FFFFFF;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.time-selector select:focus {
     border-color: #1DB954;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.3);
 }
 
-#artistsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
+.time-selector::after {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #1DB954;
+    pointer-events: none;
+    font-size: 0.8rem;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+    transition: opacity 0.3s ease;
+    padding-bottom: 3rem;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 .artist-card {
-    background-color: #181818;
-    border-radius: 12px;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    border-radius: 16px;
     overflow: hidden;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    padding: 1rem;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: 350px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .artist-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+    border-color: rgba(29, 185, 84, 0.3);
 }
 
-.artist-card img {
+.artist-card:hover::after {
+    opacity: 1;
+}
+
+.artist-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.artist-rank {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(29, 185, 84, 0.9);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.artist-image-container {
     width: 100%;
-    height: auto; /* Asegura que la altura se ajuste proporcionalmente */
-    border-radius: 8px;
-    max-height: 500px;
-    object-fit: contain; /* Asegura que la imagen se ajusta sin recortes */
-    object-position: center; /* Centra la imagen en el contenedor */
-    margin-bottom: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    padding-top: 100%;
+    max-height: none;
 }
 
-.artist-card h3 {
+.artist-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    z-index: 1;
+}
+
+.artist-card:hover .artist-image-container img {
+    transform: scale(1.08);
+}
+
+.artist-info {
+    padding: 1.2rem;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #121212;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.artist-info h3 {
+    color: #FFFFFF;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 4rem 0;
+}
+
+.loading-text {
     color: #1DB954;
+    margin-top: 1rem;
     font-size: 1rem;
-    margin-top: 0.5rem;
+    font-weight: 500;
+    animation: pulse 1.5s infinite;
 }
 
-    </style>
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(29, 185, 84, 0.1);
+    border-radius: 50%;
+    border-top-color: #1DB954;
+    animation: spin 1s linear infinite;
+}
+
+.no-artists, .error-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    background-color: #121212;
+    border-radius: 12px;
+    border: 1px solid #333;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.no-artists p, .error-message p {
+    color: #e0e0e0;
+    font-size: 1.2rem;
+}
+
+.error-message p {
+    color: #ff5555;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (max-width: 992px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .artist-select-header h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+    }
+
+    .artist-select-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .artist-select-header h1 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .artist-select-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .time-selector {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .time-selector select {
+        width: 100%;
+    }
+}
+
+/* Traducción de los mensajes de error a inglés */
+{% block javascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Actualizar los textos de error en inglés si están presentes
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeRangeSelect = document.getElementById('timeRangeSelect');
+            if (timeRangeSelect) {
+                timeRangeSelect.addEventListener('change', function() {
+                    // Modificar los textos de error cuando se actualizan los datos
+                    setTimeout(() => {
+                        if (document.querySelector('.no-artists p')) {
+                            document.querySelector('.no-artists p').textContent = "No artists found";
+                        }
+                        if (document.querySelector('.error-message p')) {
+                            document.querySelector('.error-message p').textContent = "Error loading artists";
+                        }
+                    }, 500);
+                });
+            }
+            
+            // También cambiar los textos iniciales si están presentes
+            if (document.querySelector('.no-artists p')) {
+                document.querySelector('.no-artists p').textContent = "No artists found";
+            }
+            if (document.querySelector('.error-message p')) {
+                document.querySelector('.error-message p').textContent = "Error loading artists";
+            }
+        });
+    });
+</script>
+{% endblock %}
+</style>
 {% endblock %}

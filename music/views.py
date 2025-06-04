@@ -33,9 +33,9 @@ def artist_selection_view(request):
 @login_required
 def song_selection_view(request, artist_id, song_id):
     artist = get_object_or_404(Artist, id=artist_id)
-    song_id = get_object_or_404(Track, id=song_id)
+    track = get_object_or_404(Track, id=song_id)
 
-    context = {'artist': artist, 'song': song_id}
+    context = {'artist': artist, 'song': track}
     return render(request, 'song_selection.html', context)
 
 @login_required
@@ -184,6 +184,7 @@ def get_top_songs(request):
     tracks_data = [
         {
             'name': track['name'],
+            'artist': track['artists'][0]['name'] if track['artists'] else '',
             'image': track['album']['images'][0]['url'] if track['album']['images'] else ''
         }
         for track in data.get('items', [])
